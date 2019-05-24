@@ -3,7 +3,20 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  asanaUrl: "https://app.asana.com/api/1.0",
+  asanaKey: "123456",
+  labels: {
+    bugs: ["bug"],
+    feature: ["feature", "change"],
+    technicalDebt: ["technicall-debt"]    
+  },
+  projects: {
+    kanban: "Kanban",
+    proposals: "Orçamentos",
+    backlog: "Backlog",
+    inception: "Inception"
+  }
 };
 
 /*

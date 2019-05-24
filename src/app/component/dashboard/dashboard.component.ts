@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
+import { TaskService } from 'src/app/service/task/task.service';
+import { ProjectService } from 'src/app/service/project/project.service';
+import { Project } from 'src/app/service/project/project';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,6 +12,34 @@ import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
+
+  private projects: Project[];
+
+  public me: string = "Buscando...";
+
+  ngOnInit() {
+    this.getKanbanStatus();
+    this.getBacklogStatus();
+  }
+
+  getKanbanStatus() {
+    this.projectService.getByName(environment.projects.kanban).then(project => {
+      this.me += project.name + "...";
+      this.taskService.getAllTasksOfProject(project.gid).then(tasks => {
+        this.me += tasks[0].name
+      });
+    })
+  }
+
+  getBacklogStatus() {
+    this.projectService.getByName(environment.projects.backlog).then(project => {
+      this.me += project.name + "...";
+      this.taskService.getAllTasksOfProject(project.gid).then(tasks => {
+        this.me += tasks[0].name
+      })
+    })
+  }
+
   /** Based on the screen size, switch from standard to one column per row */
   cards = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
     map(({ matches }) => {
@@ -35,5 +67,9 @@ export class DashboardComponent {
     })
   );
 
-  constructor(private breakpointObserver: BreakpointObserver) { }
+  constructor(
+    private breakpointObserver: BreakpointObserver, 
+    private projectService: ProjectService, 
+    private taskService: TaskService
+  ) { }
 }
