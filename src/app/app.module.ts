@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { DashboardModule } from './component/dashboard/dashboard.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
+import { TimeSpendedPipe } from './pipe/time-spended.pipe';
+import { MatSidenavModule } from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -16,9 +18,13 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     DashboardModule,
     BrowserAnimationsModule,
-    HttpClientModule
+    HttpClientModule,
+    MatSidenavModule
   ],
-  providers: [],
+  exports: [
+    MatSidenavModule
+  ],
+  providers: [TimeSpendedPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

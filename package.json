@@ -29,7 +29,11 @@
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.8.26",
-    "asana": "0.16.6"
+    "rest-url-builder": "~1.0.6",
+    "moment": "~2.24.0",
+    "moment-business": "~3.0.1",
+    "ng2-charts": "~2.2.3",
+    "chart.js": "~2.8.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.13.0",

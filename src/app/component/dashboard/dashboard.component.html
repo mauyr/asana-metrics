@@ -1,7 +1,19 @@
 <div class="grid-container">
-  <h1 class="mat-h1">Dashboard - {{ me }}</h1>
+  <div class="container">
+      <div fxFlex="calc2Cols">
+        <h1 class="mat-h1">Dashboard</h1>
+      </div>
+      <button mat-icon-button (click)="updateCards()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-icon-button (click)="clearLocal()">
+        <mat-icon>delete</mat-icon>
+      </button>
+  </div>
+  <mat-progress-bar [mode]="indeterminate"></mat-progress-bar>
+
   <mat-grid-list cols="4" rowHeight="350px">
-    <mat-grid-tile *ngFor="let card of cards | async" [colspan]="card.cols" [rowspan]="card.rows">
+    <mat-grid-tile *ngFor="let card of cards" [colspan]="card.cols" [rowspan]="card.rows">
       <mat-card class="dashboard-card">
         <mat-card-header>
           <mat-card-title>
@@ -16,9 +28,65 @@
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
-          <div class="mat-display-4">{{card.value}}</div>
+          <div class="mat-display-4">{{card.value | number:'1.1-1'}}</div>
         </mat-card-content>
         <mat-card-footer class="dashboard-card-content">{{card.footer}}</mat-card-footer>
+      </mat-card>
+    </mat-grid-tile>
+
+    <!-- backlog evolution chart -->
+    <mat-grid-tile [colspan]="2" [rowspan]="2">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            Backlog evolution
+            <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+              <button mat-menu-item>Expand</button>
+              <button mat-menu-item>Remove</button>
+            </mat-menu>
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+          <canvas baseChart
+                  [datasets]="backlogEvolutionChart.data"
+                  [labels]="backlogEvolutionChart.labels"
+                  [options]="backlogEvolutionChart.options"
+                  [legend]="backlogEvolutionChart.legend"
+                  [chartType]="backlogEvolutionChart.type">
+          </canvas>
+        </mat-card-content>
+        <mat-card-footer class="dashboard-card-content">Backlog estimate on last 2 months</mat-card-footer>
+      </mat-card>
+    </mat-grid-tile>
+
+    <!-- development division chart -->
+    <mat-grid-tile [colspan]="2" [rowspan]="2">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            Development division
+            <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+              <button mat-menu-item>Expand</button>
+              <button mat-menu-item>Remove</button>
+            </mat-menu>
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+            <canvas baseChart
+            [datasets]="developmentDivisionChart.data"
+            [labels]="developmentDivisionChart.labels"
+            [options]="developmentDivisionChart.options"
+            [legend]="developmentDivisionChart.legend"
+            [chartType]="developmentDivisionChart.type">
+            </canvas>
+        </mat-card-content>
+        <mat-card-footer class="dashboard-card-content">How many time spended by type</mat-card-footer>
       </mat-card>
     </mat-grid-tile>
   </mat-grid-list>

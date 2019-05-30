@@ -1,4 +1,4 @@
-export interface Task {
+export interface BaseResource {
     id: number,
     gid: string,
     name: string,
