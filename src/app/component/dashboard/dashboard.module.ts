@@ -14,7 +14,6 @@ import { ChartsModule } from 'ng2-charts';
     CommonModule,
     FlexLayoutModule,
     BrowserAnimationsModule,
-    NoopAnimationsModule,
     MatButtonModule,
     MatCheckboxModule,
     MatGridListModule,
@@ -32,8 +31,7 @@ import { ChartsModule } from 'ng2-charts';
     MatCheckboxModule, 
     MatProgressBarModule,
     FlexLayoutModule,
-    BrowserAnimationsModule,
-    NoopAnimationsModule
+    BrowserAnimationsModule
   ]
 })
 export class DashboardModule { }

@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { TimeSpendedPipe } from './time-spended.pipe';
+import { TimeSpentPipe } from './time-spent.pipe';
 
-describe('TimeSpendedPipe', () => {
+describe('TimeSpentPipe', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: TimeSpendedPipe = TestBed.get(TimeSpendedPipe);
+    const service: TimeSpentPipe = TestBed.get(TimeSpentPipe);
     expect(service).toBeTruthy();
   });
 

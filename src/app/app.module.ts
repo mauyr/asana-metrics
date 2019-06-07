@@ -4,9 +4,9 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DashboardModule } from './component/dashboard/dashboard.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import { TimeSpendedPipe } from './pipe/time-spended.pipe';
+import { TimeSpentPipe } from './pipe/time-spent.pipe';
 import { MatSidenavModule } from '@angular/material';
 
 @NgModule({
@@ -17,14 +17,13 @@ import { MatSidenavModule } from '@angular/material';
     BrowserModule,
     AppRoutingModule,
     DashboardModule,
-    BrowserAnimationsModule,
     HttpClientModule,
     MatSidenavModule
   ],
   exports: [
     MatSidenavModule
   ],
-  providers: [TimeSpendedPipe],
+  providers: [TimeSpentPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

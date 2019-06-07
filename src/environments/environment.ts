@@ -43,8 +43,8 @@ export const environment = {
   commands: {
     startDate: '/started:',
     finishDate: '/finished:',
-    spendedTime: '/spended:',
-    estimateTime: '/estimate:',
+    spendedTime: '/elapsed:',
+    estimateTime: '/estimated:',
     ignoreForStats: '/ignore'
   }
 };

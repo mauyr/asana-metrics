@@ -4,7 +4,7 @@ import { ProjectService } from 'src/app/service/project/project.service';
 import { Project } from 'src/app/domain/project';
 import { environment } from 'src/environments/environment';
 import { Task } from 'src/app/domain/task';
-import { TimeSpendedPipe } from 'src/app/pipe/time-spended.pipe';
+import { TimeSpentPipe } from 'src/app/pipe/time-spent.pipe';
 import { ChartData } from 'src/app/domain/chart-data';
 import * as moment from 'moment';
 import { TaskDatePipe } from 'src/app/pipe/task-date.pipe';
@@ -12,6 +12,10 @@ import { TaskSectionsPipe } from 'src/app/pipe/task-sections.pipe';
 import { ThemeService } from 'ng2-charts';
 import { ChartOptions } from 'chart.js';
 import { StorageService } from 'src/app/service/storage/storage.service';
+import { forkJoin, Observable, from } from 'rxjs';
+import { timeout } from 'q';
+import { map } from 'bluebird';
+import { concatAll, mergeMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,6 +36,8 @@ export class DashboardComponent {
   private updateTimeout: any;
   
   //UI components binded variables
+  loading: boolean = false;
+  loadingSteps: boolean[] = [];
   cards: any[];
 
   taskAvg: number = 0;
@@ -43,7 +49,6 @@ export class DashboardComponent {
   developmentDivisionChart: ChartData;
 
   ngOnInit() {
-    this.defineChartTheme();
     this.cards = this.getCardsValue();
     this.backlogEvolutionChart = this.getBacklogEvolutionChartData();
     this.developmentDivisionChart = this.getDevelopmentDivisionChartData();
@@ -54,13 +59,20 @@ export class DashboardComponent {
     this.storageService.delete(environment.projects.kanban);
     this.storageService.delete(environment.projects.proposal);
     this.storageService.delete(environment.projects.backlog);
+
+    this.backlogTasks = [];
+    this.kanbanTasks = [];
+    this.proposalTasks = [];
+  }
+
+  refresh(): void {
+    this.getTasksStatus();
   }
 
   updateCards(): void {
-    //save on storage
-    this.storageService.save(environment.projects.kanban, this.kanbanTasks);
-    this.storageService.save(environment.projects.proposal, this.proposalTasks);
-    this.storageService.save(environment.projects.backlog, this.backlogTasks);
+    if (this.loadingSteps.filter(l => !l).length == 0) {
+      this.loading = false;
+    }
 
     //calculate avg's
     this.taskAvg = this.calculateKanbanAvgs();
@@ -84,6 +96,8 @@ export class DashboardComponent {
   }
 
   getTasksStatus() {
+    this.loadingSteps = [];
+    this.loading = true;
     this.kanbanTasks = this.storageService.get(environment.projects.kanban);
     if (this.kanbanTasks == null) {
       this.kanbanTasks = [];
@@ -106,43 +120,60 @@ export class DashboardComponent {
   }
 
   getKanbanStatus() {
+    let step = false;
+    this.loadingSteps.push(step);
     this.projectService.getByName(environment.projects.kanban).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
-        tasks.forEach(t => {
-          this.taskService.getTaskWithDetails(t.gid).then(task => { 
-            this.kanbanTasks.push(task)
-            clearTimeout(this.updateTimeout);
-            this.updateTimeout = setTimeout(() => { this.updateCards() }, 1000);
-          });
-          
-        });
+        from(tasks).pipe(
+          mergeMap(t => this.taskService.getTaskWithDetails(t.gid))
+        ).subscribe(d => {
+          this.kanbanTasks.push(d);
+          this.storageService.save(environment.projects.kanban, this.kanbanTasks);
+          clearTimeout(this.updateTimeout);
+          this.updateTimeout = setTimeout(function(){
+            this.updateCards()
+          }, 2000)
+          step = true;
+        })
       });
     })
   }
 
   getBacklogStatus() {
+    let step = false;
+    this.loadingSteps.push(step);
     this.projectService.getByName(environment.projects.backlog).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
-        tasks.forEach(t => {
-          this.taskService.getTaskWithDetails(t.gid).then(task => {
-            this.backlogTasks.push(task)
-            clearTimeout(this.updateTimeout);
-            this.updateTimeout = setTimeout(() => { this.updateCards() }, 1000);
-          });
+        from(tasks).pipe(
+          mergeMap(t => this.taskService.getTaskWithDetails(t.gid))
+        ).subscribe(d => {
+          this.backlogTasks.push(d);
+          this.storageService.save(environment.projects.backlog, this.backlogTasks);
+          clearTimeout(this.updateTimeout);
+          this.updateTimeout = setTimeout(function(){
+              this.updateCards()
+          }, 2000)
+          step = true;
         });
       })
     })
   }
 
   getProposalStatus() {
+    let step = false;
+    this.loadingSteps.push(step);
     this.projectService.getByName(environment.projects.proposal).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
-        tasks.forEach(t => {
-          this.taskService.getTaskWithDetails(t.gid).then(task => {
-            this.proposalTasks.push(task)
-            clearTimeout(this.updateTimeout);
-            this.updateTimeout = setTimeout(() => { this.updateCards() }, 1000);
-          });
+        from(tasks).pipe(
+          mergeMap(t => this.taskService.getTaskWithDetails(t.gid))
+        ).subscribe(d => {
+          this.proposalTasks.push(d)
+          this.storageService.save(environment.projects.proposal, this.proposalTasks);
+          clearTimeout(this.updateTimeout);
+          this.updateTimeout = setTimeout(function(){
+            this.updateCards()
+          }, 2000)
+          step = true;
         });
       })
     })
@@ -237,14 +268,25 @@ export class DashboardComponent {
   getDevelopmentDivisionChartData(): ChartData {
     let chartData: ChartData = {
       options: {
-        responsive: true
+        responsive: true,
+        scales: {
+          xAxes: [{
+              stacked: true
+          }],
+          yAxes: [{
+              stacked: true
+          }]
+        }
       },
-      labels: ['Feature', 'Bug', 'Technical Debt', 'Proposal', 'Support'],
-      type: 'radar',
+      labels: ['Meta', 'Atual'],
+      type: 'horizontalBar',
       legend: true,
       data:[
-        { data: [40, 10, 30, 10, 10], label: 'Meta' },
-        { data: [5, 10, 5, 30, 50], label: 'Actual' }
+        { data: [5, 10], label: 'Bug' },
+        { data: [35, 10], label: 'Feature' },
+        { data: [30, 10], label: 'Technical Debt' },
+        { data: [10, 10], label: 'Proposal' },
+        { data: [20, 10], label: 'Support' }
       ]
     };
 
@@ -277,30 +319,10 @@ export class DashboardComponent {
     return [0,0,0,0,0,0,0,0];
   }
 
-  public defineChartTheme() {
-    let overrides: ChartOptions;
-    overrides = {
-      legend: {
-        labels: { fontColor: 'white' }
-      },
-      scales: {
-        xAxes: [{
-          ticks: { fontColor: 'white' },
-          gridLines: { color: 'rgba(255,255,255,0.1)' }
-        }],
-        yAxes: [{
-          ticks: { fontColor: 'white' },
-          gridLines: { color: 'rgba(255,255,255,0.1)' }
-        }]
-      }
-    };
-    this.themeService.setColorschemesOptions(overrides);
-  }
-
   constructor(
     private projectService: ProjectService, 
     private taskService: TaskService,
-    private timeSpendedPipe: TimeSpendedPipe,
+    private timeSpendedPipe: TimeSpentPipe,
     private datePipe: TaskDatePipe,
     private sectionsPipe: TaskSectionsPipe,
     private themeService: ThemeService,

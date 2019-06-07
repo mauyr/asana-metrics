@@ -1,18 +1,18 @@
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 <div class="grid-container">
   <div class="container">
       <div fxFlex="calc2Cols">
         <h1 class="mat-h1">Dashboard</h1>
       </div>
-      <button mat-icon-button (click)="updateCards()">
+      <button mat-icon-button (click)="refresh()">
         <mat-icon>refresh</mat-icon>
       </button>
       <button mat-icon-button (click)="clearLocal()">
         <mat-icon>delete</mat-icon>
       </button>
   </div>
-  <mat-progress-bar [mode]="indeterminate"></mat-progress-bar>
 
-  <mat-grid-list cols="4" rowHeight="350px">
+  <mat-grid-list cols="4" rowHeight="300px">
     <mat-grid-tile *ngFor="let card of cards" [colspan]="card.cols" [rowspan]="card.rows">
       <mat-card class="dashboard-card">
         <mat-card-header>
@@ -86,7 +86,7 @@
             [chartType]="developmentDivisionChart.type">
             </canvas>
         </mat-card-content>
-        <mat-card-footer class="dashboard-card-content">How many time spended by type</mat-card-footer>
+        <mat-card-footer class="dashboard-card-content">How many time spent by type</mat-card-footer>
       </mat-card>
     </mat-grid-tile>
   </mat-grid-list>

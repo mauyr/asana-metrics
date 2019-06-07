@@ -25,10 +25,10 @@ export class TaskService extends AsanaService {
     return this.getTask(taskId).then(t => {
       let builder = this.urlBuilder.buildRestURL(this.service + methodUrl);
       builder.setNamedParameter('task_id', taskId);
-      super.get(builder.get()).toPromise().then(s => {
+      return super.get(builder.get()).toPromise().then(s => {
         t.stories = s;
+        return Promise.resolve(t);
       });
-      return Promise.resolve(t);
     })
   }
 }

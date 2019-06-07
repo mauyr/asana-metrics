@@ -10,6 +10,14 @@ export interface ChartData {
             bottom?: number
           }
         },
+        scales?: {
+          xAxes?: [{
+              stacked?: boolean
+          }],
+          yAxes: [{
+              stacked?: boolean
+          }]
+        }
     },
     labels: string[],
     type: string,

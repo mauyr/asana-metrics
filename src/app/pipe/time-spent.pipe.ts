@@ -11,10 +11,10 @@ import { TaskCommandsPipe } from './task-commands.pipe';
  * Calcula o tempo gasto em dias de uma task
 */
 @Pipe({
-    name: 'timeSpended',
+    name: 'timeSpent',
     pure: false
 })
-export class TimeSpendedPipe implements PipeTransform {
+export class TimeSpentPipe implements PipeTransform {
 
   constructor(private sectionsPipe: TaskSectionsPipe, private datePipe: TaskDatePipe, private commandPipe: TaskCommandsPipe) {
 

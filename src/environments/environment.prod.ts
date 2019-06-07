@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   asanaUrl: "https://app.asana.com/api/1.0",
-  asanaKey: "123456",
+  asanaKey: "0/0b4891b579fc50a790966badb330255d",
   dateFormat: 'dd/MM/yyyy',
   labels: {
     bugs: ["bug"],
@@ -37,9 +37,10 @@ export const environment = {
     }
   },
   commands: {
-    startDate: '/start-date:',
-    finishDate: '/finish-date:',
-    spendedTime: '/spended-time:',
+    startDate: '/started:',
+    finishDate: '/finished:',
+    spendedTime: '/elapsed:',
+    estimateTime: '/estimated:',
     ignoreForStats: '/ignore'
   }
 };
