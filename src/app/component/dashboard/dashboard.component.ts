@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { TaskService } from 'src/app/service/task/task.service';
 import { ProjectService } from 'src/app/service/project/project.service';
 import { Project } from 'src/app/domain/project';
@@ -10,12 +10,9 @@ import * as moment from 'moment';
 import { TaskDatePipe } from 'src/app/pipe/task-date.pipe';
 import { TaskSectionsPipe } from 'src/app/pipe/task-sections.pipe';
 import { ThemeService } from 'ng2-charts';
-import { ChartOptions } from 'chart.js';
 import { StorageService } from 'src/app/service/storage/storage.service';
-import { forkJoin, Observable, from } from 'rxjs';
-import { timeout } from 'q';
-import { map } from 'bluebird';
-import { concatAll, mergeMap } from 'rxjs/operators';
+import { from } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,7 +21,6 @@ import { concatAll, mergeMap } from 'rxjs/operators';
 })
 export class DashboardComponent {
 
-  private projects: Project[];
   private kanbanTasks: Task[] = [];
   private backlogTasks: Task[] = [];
   private proposalTasks: Task[] = [];
@@ -32,6 +28,8 @@ export class DashboardComponent {
   private featureAvg: number = 0;
   private bugAvg: number = 0;
   private technicalDebtAvg: number = 0;
+  private support: number = 0;
+  private customization: number = 0;
   
   private updateTimeout: any;
   
@@ -81,6 +79,7 @@ export class DashboardComponent {
     this.estimatedBacklog = this.calculateBacklogEstimate();
 
     this.backlogEvolutionChart = this.getBacklogEvolutionChartData();
+    this.developmentDivisionChart = this.getDevelopmentDivisionChartData();
 
     console.log('Updating cards value');
     this.cards = this.getCardsValue();
@@ -88,10 +87,10 @@ export class DashboardComponent {
   
   getCardsValue(): any[] {
     return [
-      { title: 'Avg. task', cols: 1, rows: 1, value: this.taskAvg, footer: "Last 7 days" },
-      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, footer: "Last 7 days" },
-      { title: 'Velocity', cols: 1, rows: 1, value: this.velocity, footer: "Last 7 days" },
-      { title: 'Backlog Estimate', cols: 1, rows: 1, value: this.estimatedBacklog, footer: "Estimative to close all issues" }
+      { title: 'Avg. task', cols: 1, rows: 1, value: this.taskAvg, footer: "Last 2 weeks" },
+      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, footer: "Last 2 weeks" },
+      { title: 'Velocity', cols: 1, rows: 1, value: this.velocity, footer: "Last 2 weeks" },
+      { title: 'Backlog Estimate', cols: 1, rows: 1, value: this.estimatedBacklog, footer: "Estimative to close all issues with actual velocity" }
     ];
   }
 
@@ -183,13 +182,15 @@ export class DashboardComponent {
     this.featureAvg = this.calculateAvgByTag(this.kanbanTasks, environment.projects.kanban, environment.labels.feature);
     this.bugAvg = this.calculateAvgByTag(this.kanbanTasks, environment.projects.kanban, environment.labels.bug);
     this.technicalDebtAvg = this.calculateAvgByTag(this.kanbanTasks, environment.projects.kanban, environment.labels.technicalDebt);
+    this.support = this.calculateAvgByTag(this.kanbanTasks, environment.projects.kanban, environment.labels.support);
+    this.customization = this.calculateAvgByTag(this.kanbanTasks, environment.projects.kanban, environment.labels.customization);
 
-    let countAvgs: number = [this.featureAvg, this.bugAvg, this.technicalDebtAvg].filter(a => a > 0).length;
-    return countAvgs > 0 ? this.featureAvg + this.bugAvg + this.technicalDebtAvg / countAvgs : 0;
+    let countAvgs: number = [this.featureAvg, this.bugAvg, this.technicalDebtAvg, this.support, this.customization].filter(a => a > 0).length;
+    return countAvgs > 0 ? this.featureAvg + this.bugAvg + this.technicalDebtAvg + this.support + this.customization / countAvgs : 0;
   }
 
   calculateProposalAvg() {
-    return this.calculateAvgByTag(this.proposalTasks, environment.projects.kanban, []);
+    return this.calculateAvgByTag(this.proposalTasks, environment.projects.proposal, []);
   }
 
   calculateAvgByTag(tasks: Task[], project: string, tags: string[]) {
@@ -223,27 +224,36 @@ export class DashboardComponent {
     return lastTwoWeeksTasks.length > 0 ? totalSpended / lastTwoWeeksTasks.length : 0;
   }
 
-  calculateBacklogEstimate() {
-    let estimatedBacklog: number = 0;
-    let todoKanbanTasks: Task[] = this.kanbanTasks.filter(task => task.memberships.filter(m => m.section && environment.sections.kanban.todo.filter(s => s === m.section.name).length > 0).length > 0)
-    todoKanbanTasks.forEach(t => estimatedBacklog += this.getTaskEstimated(t));
-
-    let priorizedTasks: Task[] = this.backlogTasks.filter(task => task.memberships.filter(m => m.section && environment.sections.backlog.priorized.filter(s=> s === m.section.name).length > 0).length > 0);    
-    priorizedTasks.forEach(t => estimatedBacklog += this.getTaskEstimated(t));
-
-    return estimatedBacklog / this.velocity;
+  getTaskEstimated(task: Task) {
+    if (this.getTaskType(task) == "feature") {
+      return this.featureAvg;
+    } else if (this.getTaskType(task) == "bug") {
+      return this.bugAvg;
+    } else if (this.getTaskType(task) == "technicalDebt") {
+      return this.technicalDebtAvg;
+    } else if (this.getTaskType(task) == "support") {
+      return this.support;
+    } else if (this.getTaskType(task) == "customization") {
+      return this.customization;
+    } else {
+      let countAvgs: number = [this.featureAvg, this.bugAvg, this.technicalDebtAvg, this.support, this.customization].filter(a => a > 0).length;
+      return countAvgs > 0 ? this.featureAvg + this.bugAvg + this.technicalDebtAvg + this.support + this.customization / countAvgs : 0;
+    }
   }
 
-  getTaskEstimated(task: Task) {
+  getTaskType(task: Task) {
     if (task.tags.find(t => environment.labels.feature.filter(l => t.name === l).length > 0)) {
-      return this.featureAvg;
+      return "feature";
     } else if (task.tags.find(t => environment.labels.bug.filter(l => t.name === l).length > 0)) {
-      return this.bugAvg;
+      return "bug";
     } else if (task.tags.find(t => environment.labels.technicalDebt.filter(l => t.name === l).length > 0)) {
-      return this.technicalDebtAvg;
+      return "technicalDebt"
+    } else if (task.tags.find(t => environment.labels.support.filter(l => t.name === l).length > 0)) {
+      return "support";
+    } else if (task.tags.find(t => environment.labels.customization.filter(l => t.name === l).length > 0)) {
+      return "customization";
     } else {
-      let countAvgs: number = [this.featureAvg, this.bugAvg, this.technicalDebtAvg].filter(a => a > 0).length;
-      return countAvgs > 0 ? this.featureAvg + this.bugAvg + this.technicalDebtAvg / countAvgs : 0;
+      return "other";
     }
   }
 
@@ -281,38 +291,83 @@ export class DashboardComponent {
       labels: ['Meta', 'Atual'],
       type: 'horizontalBar',
       legend: true,
-      data:[
-        { data: [5, 10], label: 'Bug' },
-        { data: [35, 10], label: 'Feature' },
-        { data: [30, 10], label: 'Technical Debt' },
-        { data: [10, 10], label: 'Proposal' },
-        { data: [20, 10], label: 'Support' }
-      ]
+      data:this.getDevelopmentDivisionData()
     };
 
     return chartData;
   }
+  
+  getDevelopmentDivisionData(): { data: number[]; label: string; }[] {
+    let sections = this.sectionsPipe.transform(environment.projects.kanban);
+    let dateStart = moment().subtract(2, 'weeks');
+    let lastTwoWeeksTasks = this.kanbanTasks.filter(task => 
+      this.datePipe.transform(task, 'finishDate', sections) != null &&
+      dateStart.isBefore(moment(moment(this.datePipe.transform(task, 'finishDate', sections))))
+    );
 
-  getWeeksBacklogEvolution(): number[] {
+    let tasksByType = new Map()
+    let totalSpent = 0
+    lastTwoWeeksTasks.forEach(task => {
+      let type: string = this.getTaskType(task);
+      let typeSum: number = tasksByType.get(type);
+
+      let taskEstimate: number = this.getTaskEstimated(task);
+
+      typeSum = (typeSum == undefined ? 0 : typeSum) + taskEstimate;
+      tasksByType.set(type, typeSum);
+      totalSpent += taskEstimate;
+    });
+
+    if (totalSpent == 0) {
+      return [
+        {data: [5, 0], label: 'Bug'},
+        {data: [40, 0], label: 'Feature'},
+        {data: [30, 0], label: 'Technical Debt'},
+        {data: [10, 0], label: 'Proposal'},
+        {data: [10, 0], label: 'Support'},
+        {data: [5, 0], label: 'Others'}
+      ];
+    }
+    
+    return [
+      {data: [5, tasksByType.get("bug") / totalSpent * 100], label: 'Bug'},
+      {data: [40, tasksByType.get("feature") / totalSpent * 100], label: 'Feature'},
+      {data: [30, tasksByType.get("technicalDebt") / totalSpent * 100], label: 'Technical Debt'},
+      {data: [10, tasksByType.get("proposal") / totalSpent * 100], label: 'Proposal'},
+      {data: [10, tasksByType.get("support") / totalSpent * 100], label: 'Support'},
+      {data: [5, tasksByType.get("other") / totalSpent * 100], label: 'Others'}
+    ];
+  }
+
+  calculateBacklogEstimate() {
+    let estimatedBacklog: number = this.getWeekBacklogEstimated(0);
+
+    return estimatedBacklog / this.velocity;
+  }
+
+  getWeekBacklogEstimated(weekSubtract: number) {
     //Sections backlog and kanban mix
     let backlogStart = environment.sections.backlog.priorized;
     environment.sections.backlog.actualWeek.forEach(s => backlogStart.push(s));
     let sections = {todo: [], doing: backlogStart, done: environment.sections.kanban.done};
 
+    let dateFinish = moment().subtract(weekSubtract, 'weeks');
+    let weekTasks = this.backlogTasks.filter(t => 
+      this.datePipe.transform(t, 'startDate', sections) != null &&
+      dateFinish.isAfter(moment(moment(this.datePipe.transform(t, 'startDate', sections)))) &&
+      (this.datePipe.transform(t, 'finishDate', sections) == null ||
+        dateFinish.isBefore(moment(moment(this.datePipe.transform(t, 'finishDate', sections)))))
+    );
+    let estimatedBacklog = 0;
+    weekTasks.forEach(t => estimatedBacklog += this.getTaskEstimated(t));
+    return estimatedBacklog;
+  }
+
+  getWeeksBacklogEvolution(): number[] {
     if (this.backlogTasks) {
       let weeksEvolution: number[] = [];
-      for (let i: number=0; i<8; i++) {
-        let dateStart = moment().subtract(8-i, 'weeks');
-        let dateFinish = moment().subtract(7-i, 'weeks');
-        let weekTasks = this.backlogTasks.filter(t => 
-          this.datePipe.transform(t, 'startDate', sections) != null &&
-          dateFinish.isAfter(moment(moment(this.datePipe.transform(t, 'startDate', sections)))) &&
-          (this.datePipe.transform(t, 'finishDate', sections) == null ||
-            dateFinish.isBefore(moment(moment(this.datePipe.transform(t, 'finishDate', sections)))))
-        );
-        let estimatedBacklog = 0;
-        weekTasks.forEach(t => estimatedBacklog += this.getTaskEstimated(t));
-        weeksEvolution.push(estimatedBacklog);
+      for (let i: number=1; i<=8; i++) {
+        weeksEvolution.push(this.getWeekBacklogEstimated(8-i));
       }
       return weeksEvolution;
     }
@@ -325,7 +380,6 @@ export class DashboardComponent {
     private timeSpendedPipe: TimeSpentPipe,
     private datePipe: TaskDatePipe,
     private sectionsPipe: TaskSectionsPipe,
-    private themeService: ThemeService,
     private storageService: StorageService
   ) { }
 }

@@ -6,13 +6,16 @@ export const environment = {
   labels: {
     bugs: ["bug"],
     feature: ["feature", "change"],
-    technicalDebt: ["technicall-debt"]    
+    technicalDebt: ["technical-debt"],
+    support: ["support"],
+    customization: ["customization"]
   },
   projects: {
     kanban: "Kanban",
     proposal: "Orçamentos",
     backlog: "Backlog",
-    inception: "Inception"
+    inception: "Inception",
+    support: "Support"
   },
   sections: {
     backlog: {
