@@ -88,7 +88,7 @@ export class DashboardComponent {
   getCardsValue(): any[] {
     return [
       { title: 'Avg. task', cols: 1, rows: 1, value: this.taskAvg, footer: "Last 2 weeks" },
-      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, footer: "Last 2 weeks" },
+      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, footer: "Avg response time" },
       { title: 'Velocity', cols: 1, rows: 1, value: this.velocity, footer: "Last 2 weeks" },
       { title: 'Backlog Estimate', cols: 1, rows: 1, value: this.estimatedBacklog, footer: "Estimative to close all issues with actual velocity" }
     ];

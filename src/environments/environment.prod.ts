@@ -29,8 +29,8 @@ export const environment = {
       done: ['Feito']
     },
     proposals: {
-      todo: ['Pendentes'],
-      doing: ['Em andamento', 'Em revisão'],
+      todo: [],
+      doing: ['Pendentes', 'Em andamento', 'Em revisão'],
       done: ['Enviados', 'Recusados', 'Aprovados']
     },
     inception: {
