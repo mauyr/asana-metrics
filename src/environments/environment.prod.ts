@@ -10,6 +10,12 @@ export const environment = {
     support: ["support"],
     customization: ["customization"]
   },
+  estimate: {
+    bug: 0.5,
+    feature: 2,
+    technicalDebt: 5,
+    other: 2
+  },
   projects: {
     kanban: "Kanban",
     proposal: "Orçamentos",
@@ -21,7 +27,7 @@ export const environment = {
     backlog: {
       actualWeek: ['Actual week'],
       priorized: ['Candidate for next week'],
-      unpriorized: ['Classificar', 'Backlog']
+      unpriorized: ['Backlog']
     },
     kanban: {
       todo: ['A fazer'],

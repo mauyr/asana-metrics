@@ -39,7 +39,8 @@ export class DashboardComponent {
   cards: any[];
 
   taskAvg: number = 0;
-  estimatedBacklog: number = 0;
+  priorizedBacklog: number = 0;
+  backlogEstimate: number = 0;
   proposalAvg: number = 0;
   velocity: number = 0;
 
@@ -76,7 +77,8 @@ export class DashboardComponent {
     this.taskAvg = this.calculateKanbanAvgs();
     this.proposalAvg = this.calculateProposalAvg();
     this.velocity = this.calculateVelocity();
-    this.estimatedBacklog = this.calculateBacklogEstimate();
+    this.priorizedBacklog = this.calculatePiorizedBacklogEstimate(0) / this.velocity;
+    this.backlogEstimate = this.calculateBacklogEstimate() / this.velocity;
 
     this.backlogEvolutionChart = this.getBacklogEvolutionChartData();
     this.developmentDivisionChart = this.getDevelopmentDivisionChartData();
@@ -87,10 +89,10 @@ export class DashboardComponent {
   
   getCardsValue(): any[] {
     return [
-      { title: 'Avg. task', cols: 1, rows: 1, value: this.taskAvg, footer: "Last 2 weeks" },
-      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, footer: "Avg response time" },
-      { title: 'Velocity', cols: 1, rows: 1, value: this.velocity, footer: "Last 2 weeks" },
-      { title: 'Backlog Estimate', cols: 1, rows: 1, value: this.estimatedBacklog, footer: "Estimative to close all issues with actual velocity" }
+      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, footer: "time to response in days " },
+      { title: 'Velocity', cols: 1, rows: 1, value: this.velocity, footer: "avg. tasks deliver" },
+      { title: 'Priorized Estimate', cols: 1, rows: 1, value: this.priorizedBacklog, footer: "estimative to close all priorized issues" },
+      { title: 'Backlog Estimate', cols: 1, rows: 1, value: this.backlogEstimate, footer: "estimative to close all backlog issues" }
     ];
   }
 
@@ -220,24 +222,25 @@ export class DashboardComponent {
     lastTwoWeeksTasks.forEach(task => {
       totalSpended += this.getTaskEstimated(task);
     });
+    
+    let twoWeeksBusinessDays = 10;
 
-    return lastTwoWeeksTasks.length > 0 ? totalSpended / lastTwoWeeksTasks.length : 0;
+    return totalSpended / twoWeeksBusinessDays;
   }
 
   getTaskEstimated(task: Task) {
     if (this.getTaskType(task) == "feature") {
-      return this.featureAvg;
+      return environment.estimate.feature;
     } else if (this.getTaskType(task) == "bug") {
-      return this.bugAvg;
+      return environment.estimate.bug;
     } else if (this.getTaskType(task) == "technicalDebt") {
-      return this.technicalDebtAvg;
+      return environment.estimate.technicalDebt;
     } else if (this.getTaskType(task) == "support") {
-      return this.support;
+      return environment.estimate.support;
     } else if (this.getTaskType(task) == "customization") {
-      return this.customization;
+      return environment.estimate.customization;
     } else {
-      let countAvgs: number = [this.featureAvg, this.bugAvg, this.technicalDebtAvg, this.support, this.customization].filter(a => a > 0).length;
-      return countAvgs > 0 ? this.featureAvg + this.bugAvg + this.technicalDebtAvg + this.support + this.customization / countAvgs : 0;
+      return environment.estimate.other;
     }
   }
 
@@ -258,6 +261,8 @@ export class DashboardComponent {
   }
 
   getBacklogEvolutionChartData(): ChartData {
+    let min: number = 5 * this.velocity;
+    let max: number = 10 * this.velocity;
     let chartData: ChartData = {
       options: {
         scaleShowVerticalLines: false, 
@@ -267,8 +272,9 @@ export class DashboardComponent {
       type: 'line',
       legend: true,
       data:[
-        {data: [5, 5, 5, 5, 5, 5, 5, 5], label: 'Meta'},
-        {data: this.getWeeksBacklogEvolution(), label: 'Evolução'}
+        {data: this.getWeeksBacklogEvolution(), label: 'Evolução'},
+        {data: [min, min, min, min, min, min, min, min], label: 'Min.'},
+        {data: [max, max, max, max, max, max, max, max], label: 'Máx.'}
       ]
     };
 
@@ -339,18 +345,29 @@ export class DashboardComponent {
     ];
   }
 
-  calculateBacklogEstimate() {
-    let estimatedBacklog: number = this.getWeekBacklogEstimated(0);
-
-    return estimatedBacklog / this.velocity;
-  }
-
-  getWeekBacklogEstimated(weekSubtract: number) {
+  calculatePiorizedBacklogEstimate(week: number) {
     //Sections backlog and kanban mix
-    let backlogStart = environment.sections.backlog.priorized;
+    let backlogStart = environment.sections.backlog.unpriorized;
     environment.sections.backlog.actualWeek.forEach(s => backlogStart.push(s));
     let sections = {todo: [], doing: backlogStart, done: environment.sections.kanban.done};
 
+    return this.getWeekBacklogEstimated(week, sections);
+  }
+
+  calculateBacklogEstimate() {
+    //Sections backlog and kanban mix
+    let backlogStart = environment.sections.backlog.priorized
+    .concat(
+      environment.sections.backlog.actualWeek
+    ).concat(
+      environment.sections.backlog.unpriorized
+    );
+    let sections = {todo: [], doing: backlogStart, done: environment.sections.kanban.done};
+
+    return this.getWeekBacklogEstimated(0, sections);
+  }
+
+  getWeekBacklogEstimated(weekSubtract: number, sections: {todo: any[], doing: any[], done: any[]}) {
     let dateFinish = moment().subtract(weekSubtract, 'weeks');
     let weekTasks = this.backlogTasks.filter(t => 
       this.datePipe.transform(t, 'startDate', sections) != null &&
@@ -367,7 +384,7 @@ export class DashboardComponent {
     if (this.backlogTasks) {
       let weeksEvolution: number[] = [];
       for (let i: number=1; i<=8; i++) {
-        weeksEvolution.push(this.getWeekBacklogEstimated(8-i));
+        weeksEvolution.push(this.calculatePiorizedBacklogEstimate(8-i));
       }
       return weeksEvolution;
     }
