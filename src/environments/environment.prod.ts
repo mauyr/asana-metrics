@@ -12,8 +12,10 @@ export const environment = {
   },
   estimate: {
     bug: 0.5,
-    feature: 2,
+    feature: 3,
     technicalDebt: 5,
+    support: 0.5,
+    customization: 3,
     other: 2
   },
   projects: {
