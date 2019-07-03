@@ -13,6 +13,7 @@ import { ThemeService } from 'ng2-charts';
 import { StorageService } from 'src/app/service/storage/storage.service';
 import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
+import business from 'moment-business';
 
 @Component({
   selector: 'app-dashboard',
@@ -69,7 +70,7 @@ export class DashboardComponent {
   }
 
   updateCards(): void {
-    if (this.loadingSteps.filter(l => !l).length == 0) {
+    if (this.loadingSteps.filter(l => l).length == 0) {
       this.loading = false;
     }
 
@@ -89,10 +90,10 @@ export class DashboardComponent {
   
   getCardsValue(): any[] {
     return [
-      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, footer: "time to response in days " },
-      { title: 'Velocity', cols: 1, rows: 1, value: this.velocity, footer: "avg. tasks deliver" },
-      { title: 'Priorized Estimate', cols: 1, rows: 1, value: this.priorizedBacklog, footer: "estimative to close all priorized issues" },
-      { title: 'Backlog Estimate', cols: 1, rows: 1, value: this.backlogEstimate, footer: "estimative to close all backlog issues" }
+      { title: 'Avg. proposal', cols: 1, rows: 1, value: this.proposalAvg, unit: 'd', footer: "time to response in days " },
+      { title: 'Velocity', cols: 1, rows: 1, value: this.velocity, unit: '', footer: "avg. tasks deliver" },
+      { title: 'Priorized Estimate', cols: 1, rows: 1, value: this.priorizedBacklog, unit: 'd', footer: "estimative to close all priorized issues" },
+      { title: 'Backlog Estimate', cols: 1, rows: 1, value: this.backlogEstimate, unit: 'd', footer: "estimative to close all backlog issues" }
     ];
   }
 
@@ -121,8 +122,7 @@ export class DashboardComponent {
   }
 
   getKanbanStatus() {
-    let step = false;
-    this.loadingSteps.push(step);
+    this.loadingSteps.push(true);
     this.projectService.getByName(environment.projects.kanban).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
         from(tasks).pipe(
@@ -131,18 +131,18 @@ export class DashboardComponent {
           this.kanbanTasks.push(d);
           this.storageService.save(environment.projects.kanban, this.kanbanTasks);
           clearTimeout(this.updateTimeout);
-          this.updateTimeout = setTimeout(function(){
-            this.updateCards()
+          let controller = this
+          this.updateTimeout = setTimeout(function() {
+            controller.updateCards()
           }, 2000)
-          step = true;
+          this.loadingSteps.pop();
         })
       });
     })
   }
 
   getBacklogStatus() {
-    let step = false;
-    this.loadingSteps.push(step);
+    this.loadingSteps.push(true);
     this.projectService.getByName(environment.projects.backlog).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
         from(tasks).pipe(
@@ -151,18 +151,18 @@ export class DashboardComponent {
           this.backlogTasks.push(d);
           this.storageService.save(environment.projects.backlog, this.backlogTasks);
           clearTimeout(this.updateTimeout);
-          this.updateTimeout = setTimeout(function(){
-              this.updateCards()
+          let controller = this
+          this.updateTimeout = setTimeout(function() {
+            controller.updateCards()
           }, 2000)
-          step = true;
+          this.loadingSteps.pop();
         });
       })
     })
   }
 
   getProposalStatus() {
-    let step = false;
-    this.loadingSteps.push(step);
+    this.loadingSteps.push(true);
     this.projectService.getByName(environment.projects.proposal).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
         from(tasks).pipe(
@@ -171,10 +171,11 @@ export class DashboardComponent {
           this.proposalTasks.push(d)
           this.storageService.save(environment.projects.proposal, this.proposalTasks);
           clearTimeout(this.updateTimeout);
-          this.updateTimeout = setTimeout(function(){
-            this.updateCards()
+          let controller = this
+          this.updateTimeout = setTimeout(function() {
+            controller.updateCards()
           }, 2000)
-          step = true;
+          this.loadingSteps.pop()
         });
       })
     })
@@ -192,7 +193,25 @@ export class DashboardComponent {
   }
 
   calculateProposalAvg() {
-    return this.calculateAvgByTag(this.proposalTasks, environment.projects.proposal, []);
+    return this.calculateAvgFromStartDate(this.proposalTasks, environment.sections.proposals, []);
+  }
+
+  calculateAvgFromStartDate(tasks: Task[], sections: {todo: string[], doing: string[], done: string[]}, tags: string[]) {
+    let totalSpended: number = 0;
+    let countSpended: number = 0;
+    tasks.forEach(task => {
+      if (tags.length == 0 || task.tags.filter(t => tags.filter(tag => t.name===tag).length > 0).length > 0) {
+        let startedDate = task.created_at
+        let finishedDate = this.datePipe.transform(task, 'finishDate', sections)
+        if (!finishedDate)
+          finishedDate = new Date()
+        
+        let timeSpended: number = business.weekDays(moment(startedDate), moment(finishedDate))
+        totalSpended += timeSpended;
+        countSpended++;
+      }
+    });
+    return countSpended > 0 ? totalSpended/countSpended : 0;
   }
 
   calculateAvgByTag(tasks: Task[], project: string, tags: string[]) {
@@ -347,7 +366,7 @@ export class DashboardComponent {
 
   calculatePiorizedBacklogEstimate(week: number) {
     //Sections backlog and kanban mix
-    let backlogStart = environment.sections.backlog.unpriorized;
+    let backlogStart = environment.sections.backlog.priorized;
     environment.sections.backlog.actualWeek.forEach(s => backlogStart.push(s));
     let sections = {todo: [], doing: backlogStart, done: environment.sections.kanban.done};
 
