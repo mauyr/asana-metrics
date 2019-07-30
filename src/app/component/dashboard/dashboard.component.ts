@@ -398,13 +398,17 @@ export class DashboardComponent {
       ];
     }
 
+    //Adiciona produtividade ao total
+    let lostProductivity: number = (this.velocity/this.maxVelocity);
+    totalSpent = totalSpent/lostProductivity;
+
     return [
-      { data: [5, tasksByType.get("bug") / totalSpent * 100], label: 'Bug' },
-      { data: [40, tasksByType.get("feature") / totalSpent * 100], label: 'Feature' },
-      { data: [30, tasksByType.get("technicalDebt") / totalSpent * 100], label: 'Technical Debt' },
-      { data: [10, tasksByType.get("proposal") / totalSpent * 100], label: 'Proposal' },
-      { data: [10, tasksByType.get("support") / totalSpent * 100], label: 'Support' },
-      { data: [5, tasksByType.get("other") / totalSpent * 100], label: 'Others' }
+      { data: [5, (tasksByType.get("bug") || 0) / totalSpent * 100], label: 'Bug' },
+      { data: [40, (tasksByType.get("feature") || 0) / totalSpent * 100], label: 'Feature' },
+      { data: [30, (tasksByType.get("technicalDebt") || 0) / totalSpent * 100], label: 'Technical Debt' },
+      { data: [10, (tasksByType.get("proposal") || 0) / totalSpent * 100], label: 'Proposal' },
+      { data: [10, (tasksByType.get("support") || 0 ) / totalSpent * 100], label: 'Support' },
+      { data: [5,  (((tasksByType.get("others") || 0 ) / totalSpent) + (1-lostProductivity)) * 100], label: 'Others' }
     ];
   }
 
