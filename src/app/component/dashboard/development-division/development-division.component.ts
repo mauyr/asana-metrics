@@ -17,7 +17,10 @@ export class DevelopmentDivisionComponent implements OnChanges {
   data: Task[];
 
   @Input()
-  velocity: Velocity;
+  velocity: Velocity = {
+    velocity: 0,
+    maxVelocity: 0
+  };
 
   developmentDivisionChart: ChartData;
   
