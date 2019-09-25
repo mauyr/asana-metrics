@@ -4,6 +4,7 @@ import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import { ActivatedRoute } from '@angular/router';
+import { Velocity } from 'src/app/domain/velocity';
 
 @Component({
   selector: 'app-velocity',
@@ -16,11 +17,12 @@ export class VelocityComponent implements OnChanges, OnInit {
   data: Task[] = [];
 
   @Output() 
-  messageEvent = new EventEmitter<number>();
+  messageEvent = new EventEmitter<Velocity>();
 
-  value: number = 0;
-
-  maxVelocity: number = 0;
+  velocity: Velocity = {
+    velocity: 0,
+    maxVelocity: 0
+  };
 
   constructor(
     private route: ActivatedRoute
@@ -29,13 +31,13 @@ export class VelocityComponent implements OnChanges, OnInit {
   ngOnInit() {
     this.route.queryParams
       .subscribe(params => {
-        this.maxVelocity = params.teamSize || environment.maxVelocity;
+        this.velocity.maxVelocity = params.teamSize || environment.maxVelocity;
     });
   }
 
   ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
-    this.value = this.calculateVelocity();
-    this.messageEvent.emit(this.value)
+    this.velocity.velocity = this.calculateVelocity();
+    this.messageEvent.emit(this.velocity)
   }
 
   private calculateVelocity() {

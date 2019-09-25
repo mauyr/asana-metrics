@@ -3,6 +3,7 @@ import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { Task } from 'src/app/domain/task';
+import { Velocity } from 'src/app/domain/velocity';
 
 @Component({
   selector: 'app-priorized-estimate',
@@ -15,7 +16,7 @@ export class PriorizedEstimateComponent implements OnInit, OnChanges {
   data: Task[] = [];
 
   @Input()
-  velocity: number = 0;
+  velocity: Velocity;
 
   value: number = 0;
   unit: string = "d";
@@ -24,8 +25,8 @@ export class PriorizedEstimateComponent implements OnInit, OnChanges {
   }
   
   ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
-    if (this.velocity > 0) {
-      this.value = this.calculatePriorizedBacklogEstimate(0) / this.velocity;
+    if (this.velocity && this.velocity.velocity > 0) {
+      this.value = this.calculatePriorizedBacklogEstimate(0) / this.velocity.velocity;
     } else {
       this.value = 0;
     }

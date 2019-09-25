@@ -10,9 +10,10 @@ import { ChartsModule } from 'ng2-charts';
 import { ProposalComponent } from './proposal/proposal.component';
 import { VelocityComponent } from './velocity/velocity.component';
 import { PriorizedEstimateComponent } from './priorized-estimate/priorized-estimate.component';
+import { RoadmapFocusComponent } from './roadmap-focus/roadmap-focus.component';
 
 @NgModule({
-  declarations: [DashboardComponent, ProposalComponent, VelocityComponent, PriorizedEstimateComponent],
+  declarations: [DashboardComponent, ProposalComponent, VelocityComponent, PriorizedEstimateComponent, RoadmapFocusComponent],
   imports: [
     CommonModule,
     FlexLayoutModule,

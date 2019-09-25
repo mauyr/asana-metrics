@@ -15,6 +15,7 @@ import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import business from 'moment-business';
 import { ActivatedRoute } from '@angular/router';
+import { Velocity } from 'src/app/domain/velocity';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,7 +29,7 @@ export class DashboardComponent {
   private proposalTasks: Task[] = [];
 
   private velocity: number = 0;
-  private newVelocity: number = 0;
+  private newVelocity: Velocity = 0;
 
   //FIXME: Apagar váriaveis daqui para baixo
   private featureAvg: number = 0;
