@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter } from '@angular/core';
 import { Task } from 'src/app/domain/task';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
@@ -15,8 +15,12 @@ export class VelocityComponent implements OnChanges, OnInit {
   @Input()
   data: Task[] = [];
 
-  value: Number = 0;
-  maxVelocity: Number = 0;
+  @Output() 
+  messageEvent = new EventEmitter<number>();
+
+  value: number = 0;
+
+  maxVelocity: number = 0;
 
   constructor(
     private route: ActivatedRoute
@@ -31,6 +35,7 @@ export class VelocityComponent implements OnChanges, OnInit {
 
   ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
     this.value = this.calculateVelocity();
+    this.messageEvent.emit(this.value)
   }
 
   private calculateVelocity() {

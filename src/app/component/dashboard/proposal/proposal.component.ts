@@ -15,8 +15,8 @@ export class ProposalComponent implements OnChanges {
   @Input()
   data: Task[] = [];
 
-  value: Number = 0;
-  unit: String = 'd';
+  value: number = 0;
+  unit: string = 'd';
 
   ngOnChanges(changes: SimpleChanges): void {
     this.value = this.calculateProposalAvg();

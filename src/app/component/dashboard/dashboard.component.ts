@@ -27,6 +27,9 @@ export class DashboardComponent {
   private backlogTasks: Task[] = [];
   private proposalTasks: Task[] = [];
 
+  private velocity: number = 0;
+  private newVelocity: number = 0;
+
   //FIXME: Apagar váriaveis daqui para baixo
   private featureAvg: number = 0;
   private bugAvg: number = 0;
@@ -45,7 +48,6 @@ export class DashboardComponent {
   priorizedBacklog: number = 0;
   backlogEstimate: number = 0;
   proposalAvg: number = 0;
-  velocity: number = 0;
   maxVelocity: number = 0;
   velocityFooter: string = "";
   roadmapFocus: number = 0;
@@ -65,6 +67,10 @@ export class DashboardComponent {
         this.developmentDivisionChart = this.getDevelopmentDivisionChartData();
         this.getTasksStatus();
       });
+  }
+
+  receiveVelocity($event) {
+    this.newVelocity = $event;
   }
 
   clearLocal(): void {

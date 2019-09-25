@@ -9,9 +9,10 @@ import { PipeModule } from 'src/app/pipe/pipe.module';
 import { ChartsModule } from 'ng2-charts';
 import { ProposalComponent } from './proposal/proposal.component';
 import { VelocityComponent } from './velocity/velocity.component';
+import { PriorizedEstimateComponent } from './priorized-estimate/priorized-estimate.component';
 
 @NgModule({
-  declarations: [DashboardComponent, ProposalComponent, VelocityComponent],
+  declarations: [DashboardComponent, ProposalComponent, VelocityComponent, PriorizedEstimateComponent],
   imports: [
     CommonModule,
     FlexLayoutModule,

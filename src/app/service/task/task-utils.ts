@@ -90,7 +90,7 @@ export default class TaskUtils {
         return task.start_on;
     }
 
-    throw new Error("Task not started yet!");
+    return undefined;
   }
 
   public static extractCommand(stories: Story[], command: string): string {
