@@ -27,6 +27,7 @@ export class DashboardComponent {
   private backlogTasks: Task[] = [];
   private proposalTasks: Task[] = [];
 
+  //FIXME: Apagar váriaveis daqui para baixo
   private featureAvg: number = 0;
   private bugAvg: number = 0;
   private technicalDebtAvg: number = 0;

@@ -12,8 +12,9 @@
       </button>
   </div>
 
-  <mat-grid-list cols="1" rowHeight="300px">
-    <app-proposal [data]="proposalTasks" [colspan]="1" [rowspan]="1"></app-proposal>
+  <mat-grid-list cols="4" rowHeight="300px">
+      <mat-grid-tile><app-proposal [data]="proposalTasks"></app-proposal></mat-grid-tile>
+      <mat-grid-tile><app-velocity [data]="kanbanTasks"></app-velocity></mat-grid-tile>
   </mat-grid-list>
 
   <mat-grid-list cols="4" rowHeight="300px">

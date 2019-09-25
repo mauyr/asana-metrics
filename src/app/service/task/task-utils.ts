@@ -103,4 +103,36 @@ export default class TaskUtils {
     return undefined;
   }
 
+  public static getFixedTaskEstimated(task: Task) {
+    if (this.getTaskType(task) == "feature") {
+      return environment.estimate.feature;
+    } else if (this.getTaskType(task) == "bug") {
+      return environment.estimate.bug;
+    } else if (this.getTaskType(task) == "technicalDebt") {
+      return environment.estimate.technicalDebt;
+    } else if (this.getTaskType(task) == "support") {
+      return environment.estimate.support;
+    } else if (this.getTaskType(task) == "customization") {
+      return environment.estimate.customization;
+    } else {
+      return environment.estimate.other;
+    }
+  }
+
+  public static getTaskType(task: Task) {
+    if (task.tags.find(t => environment.labels.feature.filter(l => t.name === l).length > 0)) {
+      return "feature";
+    } else if (task.tags.find(t => environment.labels.bug.filter(l => t.name === l).length > 0)) {
+      return "bug";
+    } else if (task.tags.find(t => environment.labels.technicalDebt.filter(l => t.name === l).length > 0)) {
+      return "technicalDebt"
+    } else if (task.tags.find(t => environment.labels.support.filter(l => t.name === l).length > 0)) {
+      return "support";
+    } else if (task.tags.find(t => environment.labels.customization.filter(l => t.name === l).length > 0)) {
+      return "customization";
+    } else {
+      return "other";
+    }
+  }
+
 }

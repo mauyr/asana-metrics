@@ -3,13 +3,14 @@ import { Task } from 'src/app/domain/task';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
 import { MatGridTile } from '@angular/material';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-proposal',
   templateUrl: './proposal.component.html',
   styleUrls: ['./proposal.component.scss']
 })
-export class ProposalComponent extends MatGridTile implements OnChanges {
+export class ProposalComponent implements OnChanges {
 
   @Input()
   data: Task[] = [];
@@ -22,7 +23,16 @@ export class ProposalComponent extends MatGridTile implements OnChanges {
   }
 
   calculateProposalAvg() {
-    let completedProposals = this.data.filter(t => TaskUtils.getFinishedDate(t, environment.sections.proposals));
+    let dateFinish = moment().subtract(8, 'weeks');
+
+    let completedProposals = this.data.filter(t => {
+      let finishedDate = TaskUtils.getFinishedDate(t, environment.sections.proposals);
+      if (finishedDate) {
+        return dateFinish.isBefore(moment(finishedDate));
+      }
+      return false;
+    });
+
     return TaskUtils.calculateAvgFromStartDate(completedProposals, environment.sections.proposals, []);
   }
 
