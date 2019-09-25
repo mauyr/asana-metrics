@@ -7,9 +7,10 @@ import {MatButtonModule, MatCheckboxModule, MatGridListModule, MatCardModule, Ma
 import { LayoutModule } from '@angular/cdk/layout';
 import { PipeModule } from 'src/app/pipe/pipe.module';
 import { ChartsModule } from 'ng2-charts';
+import { ProposalComponent } from './proposal/proposal.component';
 
 @NgModule({
-  declarations: [DashboardComponent],
+  declarations: [DashboardComponent, ProposalComponent],
   imports: [
     CommonModule,
     FlexLayoutModule,
