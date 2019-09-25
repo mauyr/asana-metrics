@@ -7,9 +7,15 @@ import {MatButtonModule, MatCheckboxModule, MatGridListModule, MatCardModule, Ma
 import { LayoutModule } from '@angular/cdk/layout';
 import { PipeModule } from 'src/app/pipe/pipe.module';
 import { ChartsModule } from 'ng2-charts';
+import { ProposalComponent } from './proposal/proposal.component';
+import { VelocityComponent } from './velocity/velocity.component';
+import { PriorizedEstimateComponent } from './priorized-estimate/priorized-estimate.component';
+import { RoadmapFocusComponent } from './roadmap-focus/roadmap-focus.component';
+import { PriorizedBacklogEvolutionComponent } from './priorized-backlog-evolution/priorized-backlog-evolution.component';
+import { DevelopmentDivisionComponent } from './development-division/development-division.component';
 
 @NgModule({
-  declarations: [DashboardComponent],
+  declarations: [DashboardComponent, ProposalComponent, VelocityComponent, PriorizedEstimateComponent, RoadmapFocusComponent, PriorizedBacklogEvolutionComponent, DevelopmentDivisionComponent],
   imports: [
     CommonModule,
     FlexLayoutModule,
