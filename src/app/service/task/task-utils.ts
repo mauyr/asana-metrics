@@ -69,7 +69,7 @@ export default class TaskUtils {
         return task.completed_at;
     }
 
-    throw new Error("Task not finished yet!");
+    return undefined;
   }
     
   public static getStartedDate(task: Task, sections: {todo: string[], doing: string[], done: string[]}) {
