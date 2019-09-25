@@ -28,8 +28,8 @@ export class DashboardComponent {
   private backlogTasks: Task[] = [];
   private proposalTasks: Task[] = [];
 
-  private velocity: number = 0;
-  private newVelocity: Velocity = 0;
+  private velocity: number = 0; //FIXME: apagar
+  private newVelocity: Velocity; //FIXME: renomear para velocity
 
   //FIXME: Apagar váriaveis daqui para baixo
   private featureAvg: number = 0;

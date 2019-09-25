@@ -13,38 +13,13 @@
   </div>
 
   <mat-grid-list cols="4" rowHeight="300px">
-      <mat-grid-tile><app-proposal [data]="proposalTasks"></app-proposal></mat-grid-tile>
-      <mat-grid-tile><app-velocity [data]="kanbanTasks" (messageEvent)="receiveVelocity($event)"></app-velocity></mat-grid-tile>
-      <mat-grid-tile><app-priorized-estimate [data]="backlogTasks" [velocity]="newVelocity"></app-priorized-estimate></mat-grid-tile>
-      <mat-grid-tile><app-roadmap-focus [data]="kanbanTasks" [velocity]="newVelocity"></app-roadmap-focus></mat-grid-tile>
+    <mat-grid-tile><app-proposal [data]="proposalTasks"></app-proposal></mat-grid-tile>
+    <mat-grid-tile><app-velocity [data]="kanbanTasks" (messageEvent)="receiveVelocity($event)"></app-velocity></mat-grid-tile>
+    <mat-grid-tile><app-priorized-estimate [data]="backlogTasks" [velocity]="newVelocity"></app-priorized-estimate></mat-grid-tile>
+    <mat-grid-tile><app-roadmap-focus [data]="kanbanTasks" [velocity]="newVelocity"></app-roadmap-focus></mat-grid-tile>
 
-    <!-- backlog evolution chart -->
-    <mat-grid-tile [colspan]="2" [rowspan]="2">
-      <mat-card class="dashboard-card">
-        <mat-card-header>
-          <mat-card-title>
-            Priorized backlog evolution
-            <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu" xPosition="before">
-              <button mat-menu-item>Expand</button>
-              <button mat-menu-item>Remove</button>
-            </mat-menu>
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="dashboard-card-content">
-          <canvas baseChart
-                  [datasets]="backlogEvolutionChart.data"
-                  [labels]="backlogEvolutionChart.labels"
-                  [options]="backlogEvolutionChart.options"
-                  [legend]="backlogEvolutionChart.legend"
-                  [chartType]="backlogEvolutionChart.type">
-          </canvas>
-        </mat-card-content>
-        <mat-card-footer class="dashboard-card-content">Backlog estimate on last eight weeks</mat-card-footer>
-      </mat-card>
-    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="2" [rowspan]="2"><app-priorized-backlog-evolution [data]="backlogTasks" [velocity]="newVelocity"></app-priorized-backlog-evolution></mat-grid-tile>
 
     <!-- development division chart -->
     <mat-grid-tile [colspan]="2" [rowspan]="2">
