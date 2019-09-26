@@ -15,6 +15,9 @@ export class VelocityComponent implements OnChanges {
   @Input()
   data: Task[] = [];
 
+  @Input()
+  maxVelocity: number;
+
   @Output() 
   messageEvent = new EventEmitter<number>();
 
