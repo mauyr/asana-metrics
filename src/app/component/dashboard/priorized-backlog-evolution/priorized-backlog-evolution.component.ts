@@ -68,10 +68,10 @@ export class PriorizedBacklogEvolutionComponent implements OnChanges {
   private getWeekBacklogEstimated(weekSubtract: number, sections: { todo: any[], doing: any[], done: any[] }) {
     let dateFinish = moment().subtract(weekSubtract, 'weeks');
     let weekTasks = this.data.filter(t =>
-      TaskUtils.getStartedDate(t, sections) != null &&
-      dateFinish.isAfter(moment(moment(TaskUtils.getStartedDate(t, sections)))) &&
-      (TaskUtils.getFinishedDate(t, sections) == null ||
-        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, sections)))))
+      TaskUtils.getStartedDate(t, environment.projects.backlog, sections) != null &&
+      dateFinish.isAfter(moment(moment(TaskUtils.getStartedDate(t, environment.projects.backlog, sections)))) &&
+      (TaskUtils.getFinishedDate(t, environment.projects.kanban, sections) == null ||
+        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, environment.projects.kanban, sections)))))
     );
     let estimatedBacklog = 0;
     weekTasks.forEach(t => estimatedBacklog += TaskUtils.getFixedTaskEstimated(t));

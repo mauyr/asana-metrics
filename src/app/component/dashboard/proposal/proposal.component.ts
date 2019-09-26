@@ -12,6 +12,8 @@ import * as moment from 'moment';
 })
 export class ProposalComponent implements OnChanges {
 
+  private project: string = environment.projects.proposal;
+
   @Input()
   data: Task[] = [];
 
@@ -26,14 +28,14 @@ export class ProposalComponent implements OnChanges {
     let dateFinish = moment().subtract(8, 'weeks');
 
     let completedProposals = this.data.filter(t => {
-      let finishedDate = TaskUtils.getFinishedDate(t, environment.sections.proposals);
+      let finishedDate = TaskUtils.getFinishedDate(t, this.project, environment.sections.proposals);
       if (finishedDate) {
         return dateFinish.isBefore(moment(finishedDate));
       }
       return false;
     });
 
-    return TaskUtils.calculateAvgFromStartDate(completedProposals, environment.sections.proposals, []);
+    return TaskUtils.calculateAvgFromStartDate(completedProposals, this.project, environment.sections.proposals, []);
   }
 
 }

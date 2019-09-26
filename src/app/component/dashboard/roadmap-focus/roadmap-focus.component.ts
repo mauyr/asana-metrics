@@ -11,6 +11,8 @@ import { Task } from 'src/app/domain/task';
 })
 export class RoadmapFocusComponent implements OnChanges {
   
+  private project: string = environment.projects.kanban;
+
   @Input()
   data: Task[] = [];
 
@@ -31,9 +33,9 @@ export class RoadmapFocusComponent implements OnChanges {
     let sections = environment.sections.kanban;
     let dateFinish = moment().subtract(4, 'weeks');
     let weekTasks = this.data.filter(t =>
-      TaskUtils.getStartedDate(t, sections) != null &&
-      (TaskUtils.getFinishedDate(t, sections) == null ||
-        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, sections)))))
+      TaskUtils.getStartedDate(t, this.project, sections) != null &&
+      (TaskUtils.getFinishedDate(t, this.project, sections) == null ||
+        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, this.project, sections)))))
     );
     let roadmapEstimated = 0;
     let totalEstimated = 0;

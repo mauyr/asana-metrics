@@ -1,10 +1,9 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { Task } from 'src/app/domain/task';
 import { ChartData } from 'src/app/domain/chart-data';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
-import { NumberSymbol } from '@angular/common';
 
 @Component({
   selector: 'app-development-division',
@@ -12,6 +11,8 @@ import { NumberSymbol } from '@angular/common';
   styleUrls: ['./development-division.component.scss']
 })
 export class DevelopmentDivisionComponent implements OnChanges {
+
+  private project: string = environment.projects.kanban;
 
   @Input()
   data: Task[];
@@ -24,7 +25,7 @@ export class DevelopmentDivisionComponent implements OnChanges {
 
   developmentDivisionChart: ChartData;
   
-  ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.developmentDivisionChart = this.getDevelopmentDivisionChartData();
   }
 
@@ -51,11 +52,11 @@ export class DevelopmentDivisionComponent implements OnChanges {
   }
 
   getDevelopmentDivisionData(): { data: number[]; label: string; }[] {
-    let sections = TaskUtils.getSections(environment.projects.kanban);
+    let sections = TaskUtils.getSections(this.project);
     let dateStart = moment().subtract(2, 'weeks');
     let lastTwoWeeksTasks = this.data.filter(task =>
-      TaskUtils.getFinishedDate(task, sections) != null &&
-      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task,sections))))
+      TaskUtils.getFinishedDate(task, this.project, sections) != null &&
+      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, this.project, sections))))
     );
 
     let tasksByType = new Map()

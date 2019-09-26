@@ -20,5 +20,7 @@
 
     <mat-grid-tile [colspan]="2" [rowspan]="2"><app-priorized-backlog-evolution [data]="backlogTasks" [velocity]="velocity"></app-priorized-backlog-evolution></mat-grid-tile>
     <mat-grid-tile [colspan]="2" [rowspan]="2"><app-development-division [data]="kanbanTasks" [velocity]="velocity" [maxVelocity]="teamSize"></app-development-division></mat-grid-tile>
+
+    <mat-grid-tile [colspan]="4" [rowspan]="2"><app-lead-time [data]="kanbanTasks"></app-lead-time></mat-grid-tile>
   </mat-grid-list>
 </div>

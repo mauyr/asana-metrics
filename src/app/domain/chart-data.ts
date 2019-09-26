@@ -12,10 +12,20 @@ export interface ChartData {
         },
         scales?: {
           xAxes?: [{
-              stacked?: boolean
+              stacked?: boolean,
+              ticks?: {
+                min?: number,
+                max?: number,
+                stepSize?: number
+              }
           }],
           yAxes: [{
               stacked?: boolean
+              ticks?: {
+                min?: number,
+                max?: number,
+                stepSize?: number
+              }
           }]
         }
     },

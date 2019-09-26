@@ -12,6 +12,8 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class VelocityComponent implements OnChanges {
   
+  private project: string = environment.projects.kanban;
+
   @Input()
   data: Task[] = [];
 
@@ -29,11 +31,11 @@ export class VelocityComponent implements OnChanges {
   }
 
   private calculateVelocity() {
-    let sections = TaskUtils.getSections(environment.projects.kanban);
+    let sections = TaskUtils.getSections(this.project);
     let dateStart = moment().subtract(3, 'weeks');
     let lastTwoWeeksTasks = this.data.filter(task =>
-      TaskUtils.getFinishedDate(task, sections) != null &&
-      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, sections))))
+      TaskUtils.getFinishedDate(task, this.project, sections) != null &&
+      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, this.project, sections))))
     );
 
     let totalSpended: number = 0;

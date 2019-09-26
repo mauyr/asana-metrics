@@ -47,6 +47,13 @@ export const environment = {
       todo: ['Inception'],
       doing: ['Doing'],
       done: ['Done']
+    },
+    leadtime: {
+      onHold: ['A fazer'],
+      doing: ['Em andamento'],
+      review: ['Review'],
+      done: ['Feito'],
+      launch: ['completed_at'] //Asana complete action
     }
   },
   commands: {

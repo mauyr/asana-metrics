@@ -11,12 +11,12 @@ import TaskUtils from '../service/task/task-utils';
 })
 export class TaskDatePipe implements PipeTransform {
 
-  transform(task: Task, dateType: string, sections: {todo: string[], doing: string[], done: string[]}): Date {
+  transform(task: Task, dateType: string, project: string, sections: {todo: string[], doing: string[], done: string[]}): Date {
     try {
       if (dateType.toLowerCase() === 'startdate') {
-        return TaskUtils.getStartedDate(task, sections);
+        return TaskUtils.getStartedDate(task, project, sections);
       } else if (dateType.toLowerCase() === 'finishdate') {
-        return TaskUtils.getFinishedDate(task, sections);
+        return TaskUtils.getFinishedDate(task, project, sections);
       }
       return null;
     } catch (error) {

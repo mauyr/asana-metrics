@@ -6,13 +6,13 @@ import * as moment from 'moment';
 
 export default class TaskUtils {
 
-  public static calculateAvgFromStartDate(tasks: Task[], sections: { todo: string[], doing: string[], done: string[] }, tags: string[]) {
+  public static calculateAvgFromStartDate(tasks: Task[], project: string, sections: { todo: string[], doing: string[], done: string[] }, tags: string[]) {
     let totalSpended: number = 0;
     let countSpended: number = 0;
     tasks.forEach(task => {
       if (tags.length == 0 || task.tags.filter(t => tags.filter(tag => t.name === tag).length > 0).length > 0) {
         let startedDate = task.created_at
-        let finishedDate = this.getFinishedDate(task, sections)
+        let finishedDate = this.getFinishedDate(task, project, sections)
         if (!finishedDate)
           finishedDate = new Date()
 
@@ -33,8 +33,8 @@ export default class TaskUtils {
             return Number(command);
         }
 
-        let startedDate = this.getStartedDate(task, sections);
-        let finishedDate = this.getFinishedDate(task, sections);    
+        let startedDate = this.getStartedDate(task, project, sections);
+        let finishedDate = this.getFinishedDate(task, project, sections);    
         let businessDays = business.weekDays(moment(startedDate), moment(finishedDate))        
         return Math.ceil(businessDays) + (businessDays % 1 * 3);
     } catch (error) {
@@ -52,17 +52,16 @@ export default class TaskUtils {
     }
   }
 
-  public static getFinishedDate(task: Task, sections: {todo: string[], doing: string[], done: string[]}) {
+  public static getFinishedDate(task: Task, project:string, sections: {todo: string[], doing: string[], done: string[]}): Date {
     if (task.stories) {
         let command = this.extractCommand(task.stories, environment.commands.finishDate);
         if (command) {
             return moment(command, environment.dateFormat).toDate();
         }
 
-        let sectionChangedStories: Story[] = task.stories.filter(s => s.resource_subtype === 'section_changed');
-        let finishedSection = sectionChangedStories.filter(s => sections.done.filter(d => s.text.indexOf('to ' + d) >= 0 ).length > 0)
-        if (finishedSection.length > 0 ) {
-            return finishedSection.sort((a,b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) * -1)[0].created_at;
+        let finishedDateOnSection = this.getDateOnSection(task, project, sections.done, false);
+        if (finishedDateOnSection) {
+          return finishedDateOnSection;
         }
     }
     if (task.completed) {
@@ -72,24 +71,46 @@ export default class TaskUtils {
     return undefined;
   }
     
-  public static getStartedDate(task: Task, sections: {todo: string[], doing: string[], done: string[]}) {
+  public static getStartedDate(task: Task, project: string, sections: {todo: string[], doing: string[], done: string[]}): Date {
     if (task.stories) {
         let command = this.extractCommand(task.stories, environment.commands.startDate);
         if (command) {
             return moment(command, environment.dateFormat).toDate();
         }
 
-        let sectionChangedStories: Story[] = task.stories.filter(s => s.resource_subtype === 'section_changed');
-
-        let startedSection = sectionChangedStories.filter(s => sections.doing.filter(d => s.text.indexOf('to ' + d) >= 0 ).length > 0)
-        if (startedSection.length > 0 ) {
-            return startedSection.sort((a,b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))[0].created_at;
+        let startedDateOnSection = this.getDateOnSection(task, project, sections.doing, true);
+        if (startedDateOnSection) {
+          return startedDateOnSection;
         }
     }
     if (task.start_on != null) {
         return task.start_on;
     }
 
+    return undefined;
+  }
+
+  public static getDateOnSection(task: Task, project: string, section: string[], asc: boolean): Date {
+    if (section.filter(s => s == 'completed_at').length > 0) {
+      return task.completed_at;
+    } else if (task.stories && task.projects.filter(p => p.name === project).length > 0) {
+      let addedToProjectStories: Story[] = task.stories.filter(s => s.resource_subtype === 'added_to_project' && s.text.indexOf(project) >= 0);
+      let sectionChangedStories: Story[] = task.stories.filter(s => s.resource_subtype === 'section_changed');
+      
+      let startedSection = sectionChangedStories.filter(s => section.filter(d => s.text.indexOf('to ' + d) >= 0 ).length > 0)
+      if (startedSection.length > 0 ) {
+          return startedSection.sort((a,b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) * (asc ? 1 : -1) )[0].created_at;
+      }
+
+      try {
+        let todoSection: string[] = eval("environment.sections." + project + ".todo");
+        if (addedToProjectStories.length > 0 && section.filter(s => todoSection.filter(t=> t==s).length > 0)) {
+            return addedToProjectStories.sort((a,b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) * (asc ? 1 : -1))[0].created_at;
+        }
+      } catch {
+        //ignoring projects without todoSection
+      }
+    }
     return undefined;
   }
 
