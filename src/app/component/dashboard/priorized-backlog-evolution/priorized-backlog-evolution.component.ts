@@ -1,5 +1,4 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
-import { Velocity } from 'src/app/domain/velocity';
 import { ChartData } from 'src/app/domain/chart-data';
 import { Task } from 'src/app/domain/task';
 import { environment } from 'src/environments/environment';
@@ -17,10 +16,7 @@ export class PriorizedBacklogEvolutionComponent implements OnChanges {
   data: Task[];
 
   @Input()
-  velocity: Velocity = {
-    velocity: 0,
-    maxVelocity: 0
-  };
+  velocity: number;
 
   backlogEvolutionChart: ChartData;
   
@@ -29,8 +25,8 @@ export class PriorizedBacklogEvolutionComponent implements OnChanges {
   }
 
   private getBacklogEvolutionChartData(): ChartData {
-    let min: number = 5 * this.velocity.velocity;
-    let max: number = 10 * this.velocity.velocity;
+    let min: number = 5 * this.velocity;
+    let max: number = 10 * this.velocity;
     let chartData: ChartData = {
       options: {
         scaleShowVerticalLines: false,

@@ -7,7 +7,6 @@ import { StorageService } from 'src/app/service/storage/storage.service';
 import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import { Velocity } from 'src/app/domain/velocity';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +19,8 @@ export class DashboardComponent {
   private backlogTasks: Task[] = [];
   private proposalTasks: Task[] = [];
 
-  private velocity: Velocity;
+  private teamSize: number;
+  private velocity: number;
   private updateTimeout: any;
 
   //UI components binded variables
@@ -30,6 +30,7 @@ export class DashboardComponent {
   ngOnInit() {
     this.route.queryParams
       .subscribe(params => {
+        this.teamSize = params.teamSize || environment.maxVelocity;
         this.getTasksStatus();
       });
   }

@@ -1,9 +1,8 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { Task } from 'src/app/domain/task';
-import { Velocity } from 'src/app/domain/velocity';
 
 @Component({
   selector: 'app-roadmap-focus',
@@ -16,12 +15,15 @@ export class RoadmapFocusComponent implements OnChanges {
   data: Task[] = [];
 
   @Input()
-  velocity: Velocity;
+  velocity: number;
+
+  @Input()
+  maxVelocity: number;
 
   value: number = 0;
   unit: string = '%';
   
-  ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.value = this.calculateRoadmapFocus();
   }
 
@@ -44,10 +46,8 @@ export class RoadmapFocusComponent implements OnChanges {
     
     });
 
-    console.log(weekTasks);
-
-    if (this.velocity && this.velocity.maxVelocity > 0) {
-      return (this.velocity.velocity/this.velocity.maxVelocity) * (totalEstimated == 0 ? 0 : roadmapEstimated / totalEstimated * 100);
+    if (this.velocity && this.maxVelocity > 0) {
+      return (this.velocity/this.maxVelocity) * (totalEstimated == 0 ? 0 : roadmapEstimated / totalEstimated * 100);
     } else {
       return 0;
     }

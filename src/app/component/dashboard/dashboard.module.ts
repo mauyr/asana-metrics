@@ -13,9 +13,10 @@ import { PriorizedEstimateComponent } from './priorized-estimate/priorized-estim
 import { RoadmapFocusComponent } from './roadmap-focus/roadmap-focus.component';
 import { PriorizedBacklogEvolutionComponent } from './priorized-backlog-evolution/priorized-backlog-evolution.component';
 import { DevelopmentDivisionComponent } from './development-division/development-division.component';
+import { LeadTimeComponent } from './lead-time/lead-time.component';
 
 @NgModule({
-  declarations: [DashboardComponent, ProposalComponent, VelocityComponent, PriorizedEstimateComponent, RoadmapFocusComponent, PriorizedBacklogEvolutionComponent, DevelopmentDivisionComponent],
+  declarations: [DashboardComponent, ProposalComponent, VelocityComponent, PriorizedEstimateComponent, RoadmapFocusComponent, PriorizedBacklogEvolutionComponent, DevelopmentDivisionComponent, LeadTimeComponent],
   imports: [
     CommonModule,
     FlexLayoutModule,

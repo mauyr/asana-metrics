@@ -4,7 +4,7 @@ import { ChartData } from 'src/app/domain/chart-data';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
-import { Velocity } from 'src/app/domain/velocity';
+import { NumberSymbol } from '@angular/common';
 
 @Component({
   selector: 'app-development-division',
@@ -17,10 +17,10 @@ export class DevelopmentDivisionComponent implements OnChanges {
   data: Task[];
 
   @Input()
-  velocity: Velocity = {
-    velocity: 0,
-    maxVelocity: 0
-  };
+  velocity: number;
+
+  @Input()
+  maxVelocity: number;
 
   developmentDivisionChart: ChartData;
   
@@ -83,7 +83,7 @@ export class DevelopmentDivisionComponent implements OnChanges {
     }
 
     //Adiciona produtividade ao total
-    let lostProductivity: number = this.velocity.velocity >= this.velocity.maxVelocity ? 1 : this.velocity.velocity/this.velocity.maxVelocity;
+    let lostProductivity: number = this.velocity >= this.maxVelocity ? 1 : this.velocity/this.maxVelocity;
     totalSpent = totalSpent/lostProductivity;
 
     let bug: number = (tasksByType.get("bug") || 0) / totalSpent;
