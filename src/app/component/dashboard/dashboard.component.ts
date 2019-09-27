@@ -15,13 +15,13 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class DashboardComponent {
 
-  private kanbanTasks: Task[] = [];
-  private backlogTasks: Task[] = [];
-  private proposalTasks: Task[] = [];
+  kanbanTasks: Task[] = [];
+  backlogTasks: Task[] = [];
+  proposalTasks: Task[] = [];
 
-  private teamSize: number;
-  private velocity: number;
-  private updateTimeout: any;
+  teamSize: number;
+  velocity: number;
+  updateTimeout: any;
 
   //UI components binded variables
   loading: boolean = false;
