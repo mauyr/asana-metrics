@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   asanaUrl: "https://app.asana.com/api/1.0",
-  asanaKey: "0/0b4891b579fc50a790966badb330255d",
+  asanaKey: "your-asana-key",
   dateFormat: 'dd/MM/yyyy',
   maxVelocity: 3.5,
   labels: {
