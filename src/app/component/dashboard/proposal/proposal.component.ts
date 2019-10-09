@@ -1,9 +1,10 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
 import { MatGridTile } from '@angular/material';
 import * as moment from 'moment';
+import { Project } from 'src/app/domain/project';
 
 @Component({
   selector: 'app-proposal',
@@ -12,7 +13,7 @@ import * as moment from 'moment';
 })
 export class ProposalComponent implements OnChanges {
 
-  private project: string = environment.projects.proposal;
+  private project: Project = environment.projects.proposal;
 
   @Input()
   data: Task[] = [];
@@ -28,14 +29,14 @@ export class ProposalComponent implements OnChanges {
     let dateFinish = moment().subtract(8, 'weeks');
 
     let completedProposals = this.data.filter(t => {
-      let finishedDate = TaskUtils.getFinishedDate(t, this.project, environment.sections.proposals);
+      let finishedDate = TaskUtils.getFinishedDate(t, this.project, this.project.sections);
       if (finishedDate) {
         return dateFinish.isBefore(moment(finishedDate));
       }
       return false;
     });
 
-    return TaskUtils.calculateAvgFromStartDate(completedProposals, this.project, environment.sections.proposals, []);
+    return TaskUtils.calculateAvgFromStartDate(completedProposals, this.project, this.project.sections, []);
   }
 
 }

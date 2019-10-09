@@ -1,12 +1,7 @@
 import { Pipe, PipeTransform, Inject } from '@angular/core';
-import { Task } from '../domain/task';
-import { environment } from 'src/environments/environment';
-import * as moment from 'moment';
-import business from 'moment-business';
-import { TaskSectionsPipe } from './task-sections.pipe';
-import { TaskDatePipe } from './task-date.pipe';
-import { TaskCommandsPipe } from './task-commands.pipe';
+import { Task } from '../domain/asana/task';
 import TaskUtils from '../service/task/task-utils';
+import { Project } from '../domain/project';
 
 /*
  * Calcula o tempo gasto em dias de uma task
@@ -17,7 +12,7 @@ import TaskUtils from '../service/task/task-utils';
 })
 export class TimeSpentPipe implements PipeTransform {
 
-  transform(task: Task, project: string): number {
+  transform(task: Task, project: Project): number {
     return TaskUtils.timeSpent(task, project);
   }
 }

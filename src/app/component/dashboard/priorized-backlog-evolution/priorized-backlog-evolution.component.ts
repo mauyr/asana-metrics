@@ -1,9 +1,10 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
 import { ChartData } from 'src/app/domain/chart-data';
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import TaskUtils from 'src/app/service/task/task-utils';
+import { Sections } from 'src/app/domain/section';
 
 @Component({
   selector: 'app-priorized-backlog-evolution',
@@ -12,6 +13,8 @@ import TaskUtils from 'src/app/service/task/task-utils';
 })
 export class PriorizedBacklogEvolutionComponent implements OnChanges {
   
+  private weeks: number = 8;
+
   @Input()
   data: Task[];
 
@@ -58,14 +61,14 @@ export class PriorizedBacklogEvolutionComponent implements OnChanges {
 
   private calculatePiorizedBacklogEstimate(week: number) {
     //Sections backlog and kanban mix
-    let backlogStart = environment.sections.backlog.priorized;
-    environment.sections.backlog.actualWeek.forEach(s => backlogStart.push(s));
-    let sections = { todo: [], doing: backlogStart, done: environment.sections.kanban.done };
+    let backlogStart = environment.projects.backlog.sections.todo;
+    environment.projects.backlog.sections.doing.forEach(s => backlogStart.push(s));
+    let sections = { todo: [], doing: backlogStart, done: environment.projects.kanban.sections.done };
 
     return this.getWeekBacklogEstimated(week, sections);
   }
 
-  private getWeekBacklogEstimated(weekSubtract: number, sections: { todo: any[], doing: any[], done: any[] }) {
+  private getWeekBacklogEstimated(weekSubtract: number, sections: Sections) {
     let dateFinish = moment().subtract(weekSubtract, 'weeks');
     let weekTasks = this.data.filter(t =>
       TaskUtils.getStartedDate(t, environment.projects.backlog, sections) != null &&
@@ -74,7 +77,7 @@ export class PriorizedBacklogEvolutionComponent implements OnChanges {
         dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, environment.projects.kanban, sections)))))
     );
     let estimatedBacklog = 0;
-    weekTasks.forEach(t => estimatedBacklog += TaskUtils.getFixedTaskEstimated(t));
+    weekTasks.forEach(t => estimatedBacklog += TaskUtils.getTaskEstimated(t, this.data, environment.projects.kanban));
     return estimatedBacklog;
   }
 

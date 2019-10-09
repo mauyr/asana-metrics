@@ -1,12 +1,14 @@
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
 import business from 'moment-business';
 import { environment } from 'src/environments/environment';
-import { Story } from 'src/app/domain/story';
+import { Story } from 'src/app/domain/asana/story';
 import * as moment from 'moment';
+import { Sections } from 'src/app/domain/section';
+import { Project } from 'src/app/domain/project';
 
 export default class TaskUtils {
 
-  public static calculateAvgFromStartDate(tasks: Task[], project: string, sections: { todo: string[], doing: string[], done: string[] }, tags: string[]) {
+  public static calculateAvgFromStartDate(tasks: Task[], project: Project, sections: Sections, tags: string[]) {
     let totalSpended: number = 0;
     let countSpended: number = 0;
     tasks.forEach(task => {
@@ -24,8 +26,8 @@ export default class TaskUtils {
     return countSpended > 0 ? totalSpended / countSpended : 0;
   }
 
-  public static timeSpent(task: Task, project: string): number {
-    let sections = this.getSections(project);
+  public static timeSpent(task: Task, project: Project): number {
+    let sections = project.sections;
 
     try {
         let command = this.extractCommand(task.stories, environment.commands.spendedTime);
@@ -42,17 +44,7 @@ export default class TaskUtils {
     }
   }
 
-  public static getSections(project: string): {todo: string[], doing: string[], done: string[]} {
-    if (environment.projects.inception == project) {
-        return environment.sections.inception;
-    } else if (environment.projects.kanban == project) {
-        return environment.sections.kanban;
-    } else {
-        return environment.sections.proposals;
-    }
-  }
-
-  public static getFinishedDate(task: Task, project:string, sections: {todo: string[], doing: string[], done: string[]}): Date {
+  public static getFinishedDate(task: Task, project: Project, sections: Sections): Date {
     if (task.stories) {
         let command = this.extractCommand(task.stories, environment.commands.finishDate);
         if (command) {
@@ -71,7 +63,7 @@ export default class TaskUtils {
     return undefined;
   }
     
-  public static getStartedDate(task: Task, project: string, sections: {todo: string[], doing: string[], done: string[]}): Date {
+  public static getStartedDate(task: Task, project: Project, sections: Sections): Date {
     if (task.stories) {
         let command = this.extractCommand(task.stories, environment.commands.startDate);
         if (command) {
@@ -90,11 +82,11 @@ export default class TaskUtils {
     return undefined;
   }
 
-  public static getDateOnSection(task: Task, project: string, section: string[], asc: boolean): Date {
+  public static getDateOnSection(task: Task, project: Project, section: string[], asc: boolean): Date {
     if (section.filter(s => s == 'completed_at').length > 0) {
       return task.completed_at;
-    } else if (task.stories && task.projects.filter(p => p.name === project).length > 0) {
-      let addedToProjectStories: Story[] = task.stories.filter(s => s.resource_subtype === 'added_to_project' && s.text.indexOf(project) >= 0);
+    } else if (task.stories && task.projects.filter(p => p.name === project.name).length > 0) {
+      let addedToProjectStories: Story[] = task.stories.filter(s => s.resource_subtype === 'added_to_project' && s.text.indexOf(project.name) >= 0);
       let sectionChangedStories: Story[] = task.stories.filter(s => s.resource_subtype === 'section_changed');
       
       let startedSection = sectionChangedStories.filter(s => section.filter(d => s.text.indexOf('to ' + d) >= 0 ).length > 0)
@@ -124,35 +116,53 @@ export default class TaskUtils {
     return undefined;
   }
 
-  public static getFixedTaskEstimated(task: Task) {
+  public static getTaskEstimated(task: Task, tasks: Task[], project: Project): number {
+    if (environment.calculateTaskTime) {
+      let doneTasks: Task[] = this.getDoneTasksOfType(this.getTaskType(task), tasks, project);
+
+      let dateStart = moment().subtract(environment.averageTaskTimeWeeks, 'weeks');
+      let doneTasksAtLastWeeks: Task[] = doneTasks.filter(t => this.getFinishedDate(task, project, project.sections) != null && dateStart.isBefore(moment(this.getFinishedDate(task, project, project.sections))));
+      if (doneTasksAtLastWeeks.length>0) {
+        let totalSpent: number = doneTasksAtLastWeeks.map(t => this.timeSpent(t, project)).reduce((a,b) => a + b);
+        if (totalSpent > 0) {
+          return totalSpent/doneTasksAtLastWeeks.length;
+        }
+      }
+    }
+    
     if (this.getTaskType(task) == "feature") {
-      return environment.estimate.feature;
+      return environment.taskType.feature.estimate;
     } else if (this.getTaskType(task) == "bug") {
-      return environment.estimate.bug;
+      return environment.taskType.bug.estimate;
     } else if (this.getTaskType(task) == "technicalDebt") {
-      return environment.estimate.technicalDebt;
+      return environment.taskType.technicalDebt.estimate;
     } else if (this.getTaskType(task) == "support") {
-      return environment.estimate.support;
-    } else if (this.getTaskType(task) == "customization") {
-      return environment.estimate.customization;
+      return environment.taskType.support.estimate;
     } else {
-      return environment.estimate.other;
+      return environment.taskType.other.estimate;
     }
   }
 
+  public static getDoneTasksOfType(taskType: string, tasks: Task[], project: Project) {
+    return this.getDoneTasks(tasks, project).filter(t => this.getTaskType(t) == taskType);
+  }
+
+  //Not completed at all, only time calculated on development phase without CI/CD
+  public static getDoneTasks(tasks: Task[], project: Project) {
+    return tasks.filter(t => this.timeSpent(t, project) > 0);
+  }
+
   public static getTaskType(task: Task) {
-    if (task.tags.find(t => environment.labels.feature.filter(l => t.name === l).length > 0)) {
-      return "feature";
-    } else if (task.tags.find(t => environment.labels.bug.filter(l => t.name === l).length > 0)) {
-      return "bug";
-    } else if (task.tags.find(t => environment.labels.technicalDebt.filter(l => t.name === l).length > 0)) {
-      return "technicalDebt"
-    } else if (task.tags.find(t => environment.labels.support.filter(l => t.name === l).length > 0)) {
-      return "support";
-    } else if (task.tags.find(t => environment.labels.customization.filter(l => t.name === l).length > 0)) {
-      return "customization";
+    if (task.tags.find(t => environment.taskType.feature.labels.filter(l => t.name === l).length > 0)) {
+      return environment.taskType.feature.name;
+    } else if (task.tags.find(t => environment.taskType.bug.labels.filter(l => t.name === l).length > 0)) {
+      return environment.taskType.bug.name;
+    } else if (task.tags.find(t => environment.taskType.technicalDebt.labels.filter(l => t.name === l).length > 0)) {
+      return environment.taskType.technicalDebt.name;
+    } else if (task.tags.find(t => environment.taskType.support.labels.filter(l => t.name === l).length > 0)) {
+      return environment.taskType.support.name;
     } else {
-      return "other";
+      return environment.taskType.other.name;
     }
   }
 

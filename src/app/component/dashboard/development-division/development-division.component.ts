@@ -1,9 +1,11 @@
 import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
 import { ChartData } from 'src/app/domain/chart-data';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
+import { Project } from 'src/app/domain/project';
+import { Sections } from 'src/app/domain/section';
 
 @Component({
   selector: 'app-development-division',
@@ -12,7 +14,9 @@ import * as moment from 'moment';
 })
 export class DevelopmentDivisionComponent implements OnChanges {
 
-  private project: string = environment.projects.kanban;
+  private project: Project = environment.projects.kanban;
+
+  private weeks: number = 2;
 
   @Input()
   data: Task[];
@@ -52,11 +56,10 @@ export class DevelopmentDivisionComponent implements OnChanges {
   }
 
   getDevelopmentDivisionData(): { data: number[]; label: string; }[] {
-    let sections = TaskUtils.getSections(this.project);
-    let dateStart = moment().subtract(2, 'weeks');
+    let dateStart = moment().subtract(this.weeks, 'weeks');
     let lastTwoWeeksTasks = this.data.filter(task =>
-      TaskUtils.getFinishedDate(task, this.project, sections) != null &&
-      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, this.project, sections))))
+      TaskUtils.getFinishedDate(task, this.project, this.project.sections) != null &&
+      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, this.project, this.project.sections))))
     );
 
     let tasksByType = new Map()
@@ -65,7 +68,7 @@ export class DevelopmentDivisionComponent implements OnChanges {
       let type: string = TaskUtils.getTaskType(task);
       let typeSum: number = tasksByType.get(type);
 
-      let taskEstimate: number = TaskUtils.getFixedTaskEstimated(task);
+      let taskEstimate: number = TaskUtils.getTaskEstimated(task, this.data, environment.projects.kanban);
 
       typeSum = (typeSum == undefined ? 0 : typeSum) + taskEstimate;
       tasksByType.set(type, typeSum);

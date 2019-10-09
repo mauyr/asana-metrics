@@ -1,9 +1,10 @@
 import { Component, OnInit, OnChanges, Input, Output, EventEmitter } from '@angular/core';
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import { ActivatedRoute } from '@angular/router';
+import { Project } from 'src/app/domain/project';
 
 @Component({
   selector: 'app-velocity',
@@ -12,7 +13,8 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class VelocityComponent implements OnChanges {
   
-  private project: string = environment.projects.kanban;
+  private project: Project = environment.projects.kanban;
+  private weeks: number = 4;
 
   @Input()
   data: Task[] = [];
@@ -31,19 +33,18 @@ export class VelocityComponent implements OnChanges {
   }
 
   private calculateVelocity() {
-    let sections = TaskUtils.getSections(this.project);
-    let dateStart = moment().subtract(3, 'weeks');
+    let dateStart = moment().subtract(this.weeks, 'weeks');
     let lastTwoWeeksTasks = this.data.filter(task =>
-      TaskUtils.getFinishedDate(task, this.project, sections) != null &&
-      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, this.project, sections))))
+      TaskUtils.getFinishedDate(task, this.project, this.project.sections) != null &&
+      dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, this.project, this.project.sections))))
     );
 
     let totalSpended: number = 0;
     lastTwoWeeksTasks.forEach(task => {
-      totalSpended += TaskUtils.getFixedTaskEstimated(task);
+      totalSpended += TaskUtils.getTaskEstimated(task, this.data, environment.projects.kanban);
     });
 
-    let twoWeeksBusinessDays = 10;
+    let twoWeeksBusinessDays: number = 10 * this.maxVelocity;
 
     return totalSpended / twoWeeksBusinessDays;
   }

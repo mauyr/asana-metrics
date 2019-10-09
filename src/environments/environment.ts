@@ -5,59 +5,92 @@
 export const environment = {
   production: false,
   asanaUrl: "https://app.asana.com/api/1.0",
-  asanaKey: "you-asana-key",
+  asanaKey: "your-asana-key",
   dateFormat: 'dd/MM/yyyy',
+  calculateTaskTime: true,
   maxVelocity: 3.5,
-  labels: {
-    bug: ["bug"],
-    feature: ["feature", "change"],
-    technicalDebt: ["technical-debt"],
-    support: ["support"],
-    customization: ["customization"]
-  },
-  estimate: {
-    bug: 0.5,
-    feature: 3,
-    technicalDebt: 5,
-    support: 0.5,
-    customization: 3,
-    other: 2
+  averageTaskTimeWeeks: 10,
+  taskType: {
+    bug: { 
+      name: "bug",
+      labels: ["bug"],
+      estimate: 0.5
+    },
+    feature: { 
+      name: "feature",
+      labels: ["feature", "change"],
+      estimate: 3
+    },
+    technicalDebt: {
+      name: "technicalDebt",
+      labels: ["technical-debt"],
+      estimate: 5
+    },
+    support: {
+      name: "support",
+      labels : ["support"],
+      estimate: 0.5
+    },
+    other: {
+      name: "other",
+      estimate: 2
+    }
   },
   projects: {
-    kanban: "Kanban",
-    proposal: "Orçamentos",
-    backlog: "Backlog",
-    inception: "Inception",
-    support: "Support",
-    roadmap: "Roadmap - 2019/2010"
-  },
-  sections: {
-    backlog: {
-      actualWeek: ['Actual week'],
-      priorized: ['Candidate for next week'],
-      unpriorized: ['Backlog']
+    kanban: { 
+      name: "Kanban",
+      sections: {
+        todo: ['A fazer'],
+        doing: ['Em andamento', 'Review'],
+        done: ['Feito']
+      },
+      leadtime: {
+        todo: ['A fazer'],
+        doing: ['Em andamento'],
+        review: ['Review'],
+        done: ['Feito'],
+        launch: ['completed_at'] //Asana complete action
+      }
     },
-    kanban: {
-      todo: ['A fazer'],
-      doing: ['Em andamento', 'Review'],
-      done: ['Feito']
+    proposal: { 
+      name: "Orçamentos",
+      sections: {
+        todo: [],
+        doing: ['Pendentes', 'Em andamento', 'Em revisão'],
+        done: ['Enviados', 'Recusados', 'Aprovados']
+      }
     },
-    proposals: {
-      todo: [],
-      doing: ['Pendentes', 'Em andamento', 'Em revisão'],
-      done: ['Enviados', 'Recusados', 'Aprovados']
+    backlog: { 
+      name: "Backlog",
+      sections: {
+        doing: ['Actual week'],
+        todo: ['Candidate for next week'],
+        unpriorized: ['Backlog']
+      },
     },
-    inception: {
-      todo: ['Inception'],
-      doing: ['Doing'],
-      done: ['Done']
+    inception: { 
+      name: "Inception",
+      sections: {
+        todo: ['Inception'],
+        doing: ['Doing'],
+        done: ['Done']
+      }
     },
-    leadtime: {
-      todo: ['A fazer'],
-      doing: ['Em andamento'],
-      review: ['Review'],
-      done: ['Feito'],
-      launch: ['completed_at'] //Asana complete action
+    support: { 
+      name: "Support",
+      sections: {
+        todo: ['A fazer'],
+        doing: ['Em andamento', 'Review'],
+        done: ['Feito']
+      }
+    },
+    roadmap: { 
+      name: "Roadmap - 2019/2010",
+      sections: {
+        todo: ['A fazer'],
+        doing: ['Em andamento', 'Review'],
+        done: ['Feito']
+      }
     }
   },
   commands: {

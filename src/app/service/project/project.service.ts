@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AsanaService } from '../asana.service';
 import { HttpClient } from '@angular/common/http';
-import { Project } from '../../domain/project';
-import { Task } from 'src/app/domain/task';
+import { Project } from 'src/app/domain/asana/project';
+import { Task } from 'src/app/domain/asana/task';
 
 @Injectable({
   providedIn: 'root'

@@ -1,10 +1,11 @@
 import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
 import { ChartData } from 'src/app/domain/chart-data';
 import business from 'moment-business';
 import * as moment from 'moment';
 import TaskUtils from 'src/app/service/task/task-utils';
 import { environment } from 'src/environments/environment';
+import { Project } from 'src/app/domain/project';
 
 @Component({
   selector: 'app-lead-time',
@@ -13,7 +14,7 @@ import { environment } from 'src/environments/environment';
 })
 export class LeadTimeComponent implements OnChanges {
   
-  private project: string = environment.projects.kanban;
+  private project: Project = environment.projects.kanban;
 
   @Input()
   data: Task[];
@@ -53,7 +54,7 @@ export class LeadTimeComponent implements OnChanges {
 
   private getDevelopmentDivisionData(): { data: number[]; label: string; }[] {
     let dateFinishAfter = moment().subtract(3, 'months');
-    let lastCompletedTasks: Task[] = this.data.filter( t => dateFinishAfter.isBefore(TaskUtils.getDateOnSection(t, this.project, environment.sections.leadtime.launch, false)));
+    let lastCompletedTasks: Task[] = this.data.filter( t => dateFinishAfter.isBefore(TaskUtils.getDateOnSection(t, this.project, this.project.leadtime.launch, false)));
 
     let totalTasks: number = 0;
     let totalTimeTodo: number = 0
@@ -62,11 +63,11 @@ export class LeadTimeComponent implements OnChanges {
     let totalTimeDone: number = 0
 
     lastCompletedTasks.forEach( t => {
-      let startedDateTodo = TaskUtils.getDateOnSection(t, this.project, environment.sections.leadtime.todo, true);
-      let startedDateDoing = TaskUtils.getDateOnSection(t, this.project, environment.sections.leadtime.doing, true);
-      let startedDateReview = TaskUtils.getDateOnSection(t, this.project, environment.sections.leadtime.review, true);
-      let startedDateDone = TaskUtils.getDateOnSection(t, this.project, environment.sections.leadtime.done, true);
-      let startedDateLaunch = TaskUtils.getDateOnSection(t, this.project, environment.sections.leadtime.launch, true);
+      let startedDateTodo = TaskUtils.getDateOnSection(t, this.project, this.project.leadtime.todo, true);
+      let startedDateDoing = TaskUtils.getDateOnSection(t, this.project, this.project.leadtime.doing, true);
+      let startedDateReview = TaskUtils.getDateOnSection(t, this.project, this.project.leadtime.review, true);
+      let startedDateDone = TaskUtils.getDateOnSection(t, this.project, this.project.leadtime.done, true);
+      let startedDateLaunch = TaskUtils.getDateOnSection(t, this.project, this.project.leadtime.launch, true);
 
       let timeOnTodo: number = startedDateTodo ? business.weekDays(moment(startedDateTodo), moment(startedDateDoing)) : 0;
       let timeOnDoing: number = startedDateDoing ? business.weekDays(moment(startedDateDoing), moment(startedDateReview || startedDateDone || startedDateLaunch)) : 0;

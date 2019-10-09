@@ -2,7 +2,8 @@ import { Component, OnInit, OnChanges, Input, SimpleChanges } from '@angular/cor
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import TaskUtils from 'src/app/service/task/task-utils';
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
+import { Project } from 'src/app/domain/project';
 
 @Component({
   selector: 'app-roadmap-focus',
@@ -11,7 +12,8 @@ import { Task } from 'src/app/domain/task';
 })
 export class RoadmapFocusComponent implements OnChanges {
   
-  private project: string = environment.projects.kanban;
+  private project: Project = environment.projects.kanban;
+  private weeks: number = 4;
 
   @Input()
   data: Task[] = [];
@@ -30,18 +32,17 @@ export class RoadmapFocusComponent implements OnChanges {
   }
 
   private calculateRoadmapFocus() {
-    let sections = environment.sections.kanban;
-    let dateFinish = moment().subtract(4, 'weeks');
+    let dateFinish = moment().subtract(this.weeks, 'weeks');
     let weekTasks = this.data.filter(t =>
-      TaskUtils.getStartedDate(t, this.project, sections) != null &&
-      (TaskUtils.getFinishedDate(t, this.project, sections) == null ||
-        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, this.project, sections)))))
+      TaskUtils.getStartedDate(t, this.project, this.project.sections) != null &&
+      (TaskUtils.getFinishedDate(t, this.project, this.project.sections) == null ||
+        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, this.project, this.project.sections)))))
     );
     let roadmapEstimated = 0;
     let totalEstimated = 0;
     weekTasks.forEach(t => {
-      let taskEstimated = TaskUtils.getFixedTaskEstimated(t);
-      if (t.memberships.filter(m => m.project.name == environment.projects.roadmap).length > 0) {
+      let taskEstimated = TaskUtils.getTaskEstimated(t, this.data, this.project);
+      if (t.memberships.filter(m => m.project.name == environment.projects.roadmap.name).length > 0) {
         roadmapEstimated += taskEstimated;
       } 
       totalEstimated += taskEstimated;

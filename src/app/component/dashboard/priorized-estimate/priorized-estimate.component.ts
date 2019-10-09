@@ -2,7 +2,7 @@ import { Component, OnInit, OnChanges, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
 import TaskUtils from 'src/app/service/task/task-utils';
-import { Task } from 'src/app/domain/task';
+import { Task } from 'src/app/domain/asana/task';
 
 @Component({
   selector: 'app-priorized-estimate',
@@ -10,7 +10,7 @@ import { Task } from 'src/app/domain/task';
   styleUrls: ['./priorized-estimate.component.scss']
 })
 export class PriorizedEstimateComponent implements OnInit, OnChanges {
-  
+
   @Input()
   data: Task[] = [];
 
@@ -33,9 +33,9 @@ export class PriorizedEstimateComponent implements OnInit, OnChanges {
 
   private calculatePriorizedBacklogEstimate(week: number): number {
     //Sections backlog and kanban mix
-    let backlogStart = environment.sections.backlog.priorized;
-    environment.sections.backlog.actualWeek.forEach(s => backlogStart.push(s));
-    let sections = { todo: [], doing: backlogStart, done: environment.sections.kanban.done };
+    let backlogStart = environment.projects.backlog.sections.todo;
+    environment.projects.backlog.sections.doing.forEach(s => backlogStart.push(s));
+    let sections = { todo: [], doing: backlogStart, done: environment.projects.kanban.sections.done };
 
     return this.getWeekBacklogEstimated(week, sections);
   }
@@ -49,7 +49,7 @@ export class PriorizedEstimateComponent implements OnInit, OnChanges {
         dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, environment.projects.kanban, sections)))))
     );
     let estimatedBacklog = 0;
-    weekTasks.forEach(t => estimatedBacklog += TaskUtils.getFixedTaskEstimated(t));
+    weekTasks.forEach(t => estimatedBacklog += TaskUtils.getTaskEstimated(t, this.data, environment.projects.kanban));
     return estimatedBacklog;
   }
 

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Story } from '../domain/story';
+import { Story } from '../domain/asana/story';
 import TaskUtils from '../service/task/task-utils';
 
 @Pipe({

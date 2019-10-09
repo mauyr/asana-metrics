@@ -19,7 +19,7 @@ export class StorageService {
     localStorage.setItem(key, JSON.stringify(data));
   }
 
-  public get(key) {
+  public get(key: string) {
     let data: StorageData = JSON.parse(localStorage.getItem(key));
     if (data == null || data.expiresDate.getTime < new Date().getTime) {
       return null;
@@ -27,7 +27,7 @@ export class StorageService {
     return data.entity;
   }
 
-  public delete(key) {
+  public delete(key: string) {
     localStorage.removeItem(key);
   }
 }

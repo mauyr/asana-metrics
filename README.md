@@ -1,6 +1,12 @@
-# AgileMetrics
+# Asana Metrics
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.9.
+
+## Disclaimer ##
+
+A Api do Asana não tem uma forma de buscar todas as informações de uma issue em um único request.
+Por isso o ideal é que você crie um backend para salvar estas informações ao invés de realizar as chamadas que esta API faz para cada issue.
+Fiz alguns tratamentos de cache mas ainda sim são feitos muitas requisições para cada issue que tiver em seu projeto.
 
 ## Development server
 
