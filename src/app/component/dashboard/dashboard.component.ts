@@ -56,6 +56,9 @@ export class DashboardComponent {
   updateCards(): void {
     if (this.loadingSteps.filter(l => l).length == 0) {
       this.loading = false;
+      this.kanbanTasks = this.storageService.get(environment.projects.kanban.name);
+      this.backlogTasks = this.storageService.get(environment.projects.backlog.name);
+      this.proposalTasks = this.storageService.get(environment.projects.proposal.name);
     }
   }
 
