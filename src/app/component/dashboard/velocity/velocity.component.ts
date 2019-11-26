@@ -39,14 +39,19 @@ export class VelocityComponent implements OnChanges {
       dateStart.isBefore(moment(moment(TaskUtils.getFinishedDate(task, this.project, this.project.sections))))
     );
 
-    let totalSpended: number = 0;
+    let totalSpent: number = 0;
+    let totalOthers: number = 0;
     lastTwoWeeksTasks.forEach(task => {
-      totalSpended += TaskUtils.getTaskEstimated(task, this.data, environment.projects.kanban);
+      let spent: number = TaskUtils.getTaskEstimated(task, this.data, environment.projects.kanban);
+      if (TaskUtils.getTaskType(task) == environment.taskType.other.name ||
+          TaskUtils.getTaskType(task) == environment.taskType.support.name) {
+        totalOthers += spent;
+      } else {
+        totalSpent += spent;
+      }
     });
 
-    let twoWeeksBusinessDays: number = 10 * this.maxVelocity;
-
-    return totalSpended / twoWeeksBusinessDays;
+    return totalSpent / (totalSpent + totalOthers);
   }
 
 }

@@ -8,7 +8,7 @@ export const environment = {
   asanaKey: "your-asana-key",
   dateFormat: 'dd/MM/yyyy',
   calculateTaskTime: true,
-  maxVelocity: 3.5,
+  maxVelocity: 2.5,
   averageTaskTimeWeeks: 10,
   taskType: {
     bug: { 
