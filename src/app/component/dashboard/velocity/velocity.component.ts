@@ -40,18 +40,23 @@ export class VelocityComponent implements OnChanges {
     );
 
     let totalSpent: number = 0;
-    let totalOthers: number = 0;
+    let totalEstimated: number = 0;
     lastTwoWeeksTasks.forEach(task => {
       let spent: number = TaskUtils.getTaskEstimated(task, this.data, environment.projects.kanban);
-      if (TaskUtils.getTaskType(task) == environment.taskType.other.name ||
-          TaskUtils.getTaskType(task) == environment.taskType.support.name) {
-        totalOthers += spent;
-      } else {
+      if (TaskUtils.getTaskType(task) != environment.taskType.other.name &&
+          TaskUtils.getTaskType(task) != environment.taskType.support.name) {
         totalSpent += spent;
       }
+
+      totalEstimated += spent;
     });
 
-    return totalSpent / (totalSpent + totalOthers);
+    let estimatedByMaxVelocity: number = (this.weeks * 5) * this.maxVelocity;
+    if (totalEstimated > estimatedByMaxVelocity) {
+      return (estimatedByMaxVelocity/totalEstimated) * (totalSpent/totalEstimated) * this.maxVelocity;
+    } else {
+      return (totalSpent/totalEstimated) * this.maxVelocity;
+    }
   }
 
 }

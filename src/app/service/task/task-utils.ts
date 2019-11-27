@@ -129,7 +129,11 @@ export default class TaskUtils {
         }
       }
     }
-    
+
+    return this.getFixedTaskEstimate(task);
+  }
+
+  public static getFixedTaskEstimate(task: Task) {
     if (this.getTaskType(task) == "feature") {
       return environment.taskType.feature.estimate;
     } else if (this.getTaskType(task) == "bug") {
