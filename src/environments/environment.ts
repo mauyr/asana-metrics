@@ -85,7 +85,7 @@ export const environment = {
       }
     },
     roadmap: { 
-      name: "Roadmap - 2019/2010",
+      name: "Roadmap - 2019/2020",
       sections: {
         todo: ['A fazer'],
         doing: ['Em andamento', 'Review'],

@@ -40,9 +40,7 @@ export class DashboardComponent {
   }
 
   clearLocal(): void {
-    this.storageService.delete(environment.projects.kanban.name);
-    this.storageService.delete(environment.projects.proposal.name);
-    this.storageService.delete(environment.projects.backlog.name);
+    this.storageService.deleteAll();
 
     this.backlogTasks = [];
     this.kanbanTasks = [];
@@ -56,34 +54,23 @@ export class DashboardComponent {
   updateCards(): void {
     if (this.loadingSteps.filter(l => l).length == 0) {
       this.loading = false;
-      this.kanbanTasks = this.storageService.get(environment.projects.kanban.name);
-      this.backlogTasks = this.storageService.get(environment.projects.backlog.name);
-      this.proposalTasks = this.storageService.get(environment.projects.proposal.name);
+      this.kanbanTasks = [].concat(this.kanbanTasks);
+      this.backlogTasks = [].concat(this.backlogTasks);
+      this.proposalTasks = [].concat(this.proposalTasks);
     }
   }
 
   getTasksStatus() {
     this.loadingSteps = [];
     this.loading = true;
-    this.kanbanTasks = this.storageService.get(environment.projects.kanban.name);
-    if (this.kanbanTasks == null) {
-      this.kanbanTasks = [];
-      this.getKanbanStatus();
-    }
+    this.kanbanTasks = [];
+    this.getKanbanStatus();
+    
+    this.backlogTasks = [];
+    this.getBacklogStatus();
 
-    this.backlogTasks = this.storageService.get(environment.projects.backlog.name);
-    if (this.backlogTasks == null) {
-      this.backlogTasks = [];
-      this.getBacklogStatus();
-    }
-
-    this.proposalTasks = this.storageService.get(environment.projects.proposal.name);
-    if (this.proposalTasks == null) {
-      this.proposalTasks = [];
-      this.getProposalStatus();
-    }
-
-    this.updateCards();
+    this.proposalTasks = [];
+    this.getProposalStatus();
   }
 
   getKanbanStatus() {
@@ -91,12 +78,12 @@ export class DashboardComponent {
     this.projectService.getByName(environment.projects.kanban.name).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
         from(tasks).pipe(
-          mergeMap(t => this.taskService.getTaskWithDetails(t.gid))
+          mergeMap(t => this.taskService.getTaskWithDetails(t))
         ).subscribe(d => {
           this.kanbanTasks.push(d);
-          this.storageService.save(environment.projects.kanban.name, this.kanbanTasks);
+          this.storageService.save(d.gid, d);
           clearTimeout(this.updateTimeout);
-          let controller = this
+          let controller = this;
           this.updateTimeout = setTimeout(function () {
             controller.updateCards()
           }, 2000)
@@ -111,10 +98,10 @@ export class DashboardComponent {
     this.projectService.getByName(environment.projects.backlog.name).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
         from(tasks).pipe(
-          mergeMap(t => this.taskService.getTaskWithDetails(t.gid))
+          mergeMap(t => this.taskService.getTaskWithDetails(t))
         ).subscribe(d => {
           this.backlogTasks.push(d);
-          this.storageService.save(environment.projects.backlog.name, this.backlogTasks);
+          this.storageService.save(d.gid, d);
           clearTimeout(this.updateTimeout);
           let controller = this
           this.updateTimeout = setTimeout(function () {
@@ -131,10 +118,10 @@ export class DashboardComponent {
     this.projectService.getByName(environment.projects.proposal.name).then(project => {
       this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
         from(tasks).pipe(
-          mergeMap(t => this.taskService.getTaskWithDetails(t.gid))
+          mergeMap(t => this.taskService.getTaskWithDetails(t))
         ).subscribe(d => {
           this.proposalTasks.push(d)
-          this.storageService.save(environment.projects.proposal.name, this.proposalTasks);
+          this.storageService.save(d.gid, d);
           clearTimeout(this.updateTimeout);
           let controller = this
           this.updateTimeout = setTimeout(function () {

@@ -46,7 +46,6 @@ export class RoadmapFocusComponent implements OnChanges {
         roadmapEstimated += taskEstimated;
       } 
       totalEstimated += taskEstimated;
-    
     });
 
     if (this.velocity && this.maxVelocity > 0) {

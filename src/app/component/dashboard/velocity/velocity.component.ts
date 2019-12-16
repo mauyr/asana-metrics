@@ -52,11 +52,7 @@ export class VelocityComponent implements OnChanges {
     });
 
     let estimatedByMaxVelocity: number = (this.weeks * 5) * this.maxVelocity;
-    if (totalEstimated > estimatedByMaxVelocity) {
-      return (estimatedByMaxVelocity/totalEstimated) * (totalSpent/totalEstimated) * this.maxVelocity;
-    } else {
-      return (totalSpent/totalEstimated) * this.maxVelocity;
-    }
+    return (totalSpent/(totalEstimated > estimatedByMaxVelocity ? totalEstimated : estimatedByMaxVelocity)) * this.maxVelocity;
   }
 
 }

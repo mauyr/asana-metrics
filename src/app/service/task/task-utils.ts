@@ -157,13 +157,13 @@ export default class TaskUtils {
   }
 
   public static getTaskType(task: Task) {
-    if (task.tags.find(t => environment.taskType.feature.labels.filter(l => t.name === l).length > 0)) {
+    if (task.tags.find(t => environment.taskType.feature.labels.filter(l => t.name == l).length > 0)) {
       return environment.taskType.feature.name;
-    } else if (task.tags.find(t => environment.taskType.bug.labels.filter(l => t.name === l).length > 0)) {
+    } else if (task.tags.find(t => environment.taskType.bug.labels.filter(l => t.name == l).length > 0)) {
       return environment.taskType.bug.name;
-    } else if (task.tags.find(t => environment.taskType.technicalDebt.labels.filter(l => t.name === l).length > 0)) {
+    } else if (task.tags.find(t => environment.taskType.technicalDebt.labels.filter(l => t.name == l).length > 0)) {
       return environment.taskType.technicalDebt.name;
-    } else if (task.tags.find(t => environment.taskType.support.labels.filter(l => t.name === l).length > 0)) {
+    } else if (task.tags.find(t => environment.taskType.support.labels.filter(l => t.name == l).length > 0)) {
       return environment.taskType.support.name;
     } else {
       return environment.taskType.other.name;
