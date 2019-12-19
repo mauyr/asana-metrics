@@ -37,21 +37,6 @@ export const environment = {
     }
   },
   projects: {
-    kanban: { 
-      name: "Kanban",
-      sections: {
-        todo: ['A fazer'],
-        doing: ['Em andamento', 'Review'],
-        done: ['Feito']
-      },
-      leadtime: {
-        todo: ['A fazer'],
-        doing: ['Em andamento'],
-        review: ['Review'],
-        done: ['Feito'],
-        launch: ['completed_at'] //Asana complete action
-      }
-    },
     proposal: { 
       name: "Orçamentos",
       sections: {
@@ -63,10 +48,19 @@ export const environment = {
     backlog: { 
       name: "Backlog",
       sections: {
-        doing: ['Actual week'],
-        todo: ['Candidate for next week'],
-        unpriorized: ['Backlog']
+        unpriorized: ['Backlog'],
+        priorized: ['Candidate for next week', 'To Do'],
+        todo: ['To Do'],
+        doing: ['Doing', 'Impediment', 'Review'],
+        done: ['Done']
       },
+      leadtime: {
+        todo: ['A fazer'],
+        doing: ['Em andamento'],
+        review: ['Review'],
+        done: ['Feito'],
+        launch: ['completed_at'] //Asana complete action
+      }
     },
     inception: { 
       name: "Inception",

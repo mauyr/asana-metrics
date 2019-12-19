@@ -15,7 +15,6 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class DashboardComponent {
 
-  kanbanTasks: Task[] = [];
   backlogTasks: Task[] = [];
   proposalTasks: Task[] = [];
 
@@ -43,7 +42,6 @@ export class DashboardComponent {
     this.storageService.deleteAll();
 
     this.backlogTasks = [];
-    this.kanbanTasks = [];
     this.proposalTasks = [];
   }
 
@@ -54,7 +52,6 @@ export class DashboardComponent {
   updateCards(): void {
     if (this.loadingSteps.filter(l => l).length == 0) {
       this.loading = false;
-      this.kanbanTasks = [].concat(this.kanbanTasks);
       this.backlogTasks = [].concat(this.backlogTasks);
       this.proposalTasks = [].concat(this.proposalTasks);
     }
@@ -63,8 +60,6 @@ export class DashboardComponent {
   getTasksStatus() {
     this.loadingSteps = [];
     this.loading = true;
-    this.kanbanTasks = [];
-    this.getKanbanStatus();
     
     this.backlogTasks = [];
     this.getBacklogStatus();
@@ -72,27 +67,6 @@ export class DashboardComponent {
     this.proposalTasks = [];
     this.getProposalStatus();
   }
-
-  getKanbanStatus() {
-    this.loadingSteps.push(true);
-    this.projectService.getByName(environment.projects.kanban.name).then(project => {
-      this.projectService.getAllTasksOfProject(project.gid).then(tasks => {
-        from(tasks).pipe(
-          mergeMap(t => this.taskService.getTaskWithDetails(t))
-        ).subscribe(d => {
-          this.kanbanTasks.push(d);
-          this.storageService.save(d.gid, d);
-          clearTimeout(this.updateTimeout);
-          let controller = this;
-          this.updateTimeout = setTimeout(function () {
-            controller.updateCards()
-          }, 2000)
-          this.loadingSteps.pop();
-        })
-      });
-    })
-  }
-
   getBacklogStatus() {
     this.loadingSteps.push(true);
     this.projectService.getByName(environment.projects.backlog.name).then(project => {

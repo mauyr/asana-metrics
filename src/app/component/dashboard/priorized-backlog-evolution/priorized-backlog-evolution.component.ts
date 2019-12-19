@@ -52,18 +52,16 @@ export class PriorizedBacklogEvolutionComponent implements OnChanges {
     if (this.data) {
       let weeksEvolution: number[] = [];
       for (let i: number = 1; i <= 8; i++) {
-        weeksEvolution.push(this.calculatePiorizedBacklogEstimate(8 - i));
+        weeksEvolution.push(this.calculatePriorizedBacklogEstimate(8 - i));
       }
       return weeksEvolution;
     }
     return [0, 0, 0, 0, 0, 0, 0, 0];
   }
 
-  private calculatePiorizedBacklogEstimate(week: number) {
-    //Sections backlog and kanban mix
-    let backlogStart = environment.projects.backlog.sections.todo;
-    environment.projects.backlog.sections.doing.forEach(s => backlogStart.push(s));
-    let sections = { todo: [], doing: backlogStart, done: environment.projects.kanban.sections.done };
+  private calculatePriorizedBacklogEstimate(week: number) {
+    let doing = [].concat(environment.projects.backlog.sections.todo, environment.projects.backlog.sections.priorized)
+    let sections: Sections = { todo: [], doing: doing, done: environment.projects.backlog.sections.done };
 
     return this.getWeekBacklogEstimated(week, sections);
   }
@@ -73,11 +71,11 @@ export class PriorizedBacklogEvolutionComponent implements OnChanges {
     let weekTasks = this.data.filter(t =>
       TaskUtils.getStartedDate(t, environment.projects.backlog, sections) != null &&
       dateFinish.isAfter(moment(moment(TaskUtils.getStartedDate(t, environment.projects.backlog, sections)))) &&
-      (TaskUtils.getFinishedDate(t, environment.projects.kanban, sections) == null ||
-        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, environment.projects.kanban, sections)))))
+      (TaskUtils.getFinishedDate(t, environment.projects.backlog, sections) == null ||
+        dateFinish.isBefore(moment(moment(TaskUtils.getFinishedDate(t, environment.projects.backlog, sections)))))
     );
     let estimatedBacklog = 0;
-    weekTasks.forEach(t => estimatedBacklog += TaskUtils.getTaskEstimated(t, this.data, environment.projects.kanban));
+    weekTasks.forEach(t => estimatedBacklog += TaskUtils.getTaskEstimated(t, this.data, environment.projects.backlog));
     return estimatedBacklog;
   }
 

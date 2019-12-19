@@ -14,7 +14,7 @@ import { Sections } from 'src/app/domain/section';
 })
 export class DevelopmentDivisionComponent implements OnChanges {
 
-  private project: Project = environment.projects.kanban;
+  private project: Project = environment.projects.backlog;
 
   private weeks: number = 2;
 
@@ -68,7 +68,7 @@ export class DevelopmentDivisionComponent implements OnChanges {
       let type: string = TaskUtils.getTaskType(task);
       let typeSum: number = tasksByType.get(type);
 
-      let taskEstimate: number = TaskUtils.getTaskEstimated(task, this.data, environment.projects.kanban);
+      let taskEstimate: number = TaskUtils.getTaskEstimated(task, this.data, this.project);
 
       typeSum = (typeSum == undefined ? 0 : typeSum) + taskEstimate;
       tasksByType.set(type, typeSum);

@@ -14,7 +14,7 @@ import { Project } from 'src/app/domain/project';
 })
 export class LeadTimeComponent implements OnChanges {
   
-  private project: Project = environment.projects.kanban;
+  private project: Project = environment.projects.backlog;
 
   @Input()
   data: Task[];

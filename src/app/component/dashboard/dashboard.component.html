@@ -14,13 +14,13 @@
 
   <mat-grid-list cols="4" rowHeight="300px">
     <mat-grid-tile><app-proposal [data]="proposalTasks"></app-proposal></mat-grid-tile>
-    <mat-grid-tile><app-velocity [data]="kanbanTasks" [maxVelocity]="teamSize" (messageEvent)="receiveVelocity($event)"></app-velocity></mat-grid-tile>
+    <mat-grid-tile><app-velocity [data]="backlogTasks" [maxVelocity]="teamSize" (messageEvent)="receiveVelocity($event)"></app-velocity></mat-grid-tile>
     <mat-grid-tile><app-priorized-estimate [data]="backlogTasks" [velocity]="velocity"></app-priorized-estimate></mat-grid-tile>
-    <mat-grid-tile><app-roadmap-focus [data]="kanbanTasks" [velocity]="velocity" [maxVelocity]="teamSize"></app-roadmap-focus></mat-grid-tile>
+    <mat-grid-tile><app-roadmap-focus [data]="backlogTasks" [velocity]="velocity" [maxVelocity]="teamSize"></app-roadmap-focus></mat-grid-tile>
 
     <mat-grid-tile [colspan]="2" [rowspan]="2"><app-priorized-backlog-evolution [data]="backlogTasks" [velocity]="velocity"></app-priorized-backlog-evolution></mat-grid-tile>
-    <mat-grid-tile [colspan]="2" [rowspan]="2"><app-development-division [data]="kanbanTasks" [velocity]="velocity" [maxVelocity]="teamSize"></app-development-division></mat-grid-tile>
+    <mat-grid-tile [colspan]="2" [rowspan]="2"><app-development-division [data]="backlogTasks" [velocity]="velocity" [maxVelocity]="teamSize"></app-development-division></mat-grid-tile>
 
-    <mat-grid-tile [colspan]="4" [rowspan]="2"><app-lead-time [data]="kanbanTasks"></app-lead-time></mat-grid-tile>
+    <mat-grid-tile [colspan]="4" [rowspan]="2"><app-lead-time [data]="backlogTasks"></app-lead-time></mat-grid-tile>
   </mat-grid-list>
 </div>

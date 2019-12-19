@@ -13,7 +13,7 @@ import { Project } from 'src/app/domain/project';
 })
 export class VelocityComponent implements OnChanges {
   
-  private project: Project = environment.projects.kanban;
+  private project: Project = environment.projects.backlog;
   private weeks: number = 4;
 
   @Input()
@@ -42,7 +42,7 @@ export class VelocityComponent implements OnChanges {
     let totalSpent: number = 0;
     let totalEstimated: number = 0;
     lastTwoWeeksTasks.forEach(task => {
-      let spent: number = TaskUtils.getTaskEstimated(task, this.data, environment.projects.kanban);
+      let spent: number = TaskUtils.getTaskEstimated(task, this.data, this.project);
       if (TaskUtils.getTaskType(task) != environment.taskType.other.name &&
           TaskUtils.getTaskType(task) != environment.taskType.support.name) {
         totalSpent += spent;

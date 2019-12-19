@@ -12,7 +12,7 @@ import { Project } from 'src/app/domain/project';
 })
 export class RoadmapFocusComponent implements OnChanges {
   
-  private project: Project = environment.projects.kanban;
+  private project: Project = environment.projects.backlog;
   private weeks: number = 4;
 
   @Input()
