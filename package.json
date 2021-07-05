@@ -33,7 +33,7 @@
     "moment": "~2.24.0",
     "moment-business": "~3.0.1",
     "ng2-charts": "~2.2.3",
-    "chart.js": "~2.8.0"
+    "chart.js": "~2.9.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.13.0",
